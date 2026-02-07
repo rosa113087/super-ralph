@@ -280,7 +280,21 @@ Restart Droid to discover the skills.
 
 ### Claude Code
 
-The skills work as a Claude Code plugin. Place the `skills/` directory where Claude Code can discover it, or reference from your `CLAUDE.md`:
+**Method 1: Install as plugin (recommended)**
+
+In Claude Code, run:
+```
+/plugin add https://github.com/aezizhu/super-ralph
+```
+
+This registers Super-Ralph as a Claude Code plugin. All 14 skills will be auto-discovered. Start a new session for skills to take effect.
+
+To update later:
+```
+/plugin update super-ralph
+```
+
+**Method 2: Clone and reference from CLAUDE.md**
 
 ```bash
 git clone https://github.com/aezizhu/super-ralph.git ~/.super-ralph
