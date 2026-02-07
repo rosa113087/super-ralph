@@ -4,25 +4,43 @@
 # Prevents session exit when a ralph-loop is active
 # Feeds Claude's output back as input to continue the loop
 
-set -euo pipefail
+# No `set -e` — we handle errors explicitly to avoid silent crashes
+# that would let Claude exit the loop unexpectedly
+set -u
+
+# Debug logging (enable with SUPER_RALPH_DEBUG=1)
+DEBUG_LOG=".claude/super-ralph-debug.log"
+debug() {
+  if [[ "${SUPER_RALPH_DEBUG:-0}" == "1" ]]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*" >> "$DEBUG_LOG" 2>/dev/null
+  fi
+}
+
+debug "=== Stop hook fired ==="
 
 # Read hook input from stdin (advanced stop hook API)
 HOOK_INPUT=$(cat)
+debug "Hook input length: ${#HOOK_INPUT}"
 
 # Check if ralph-loop is active
 RALPH_STATE_FILE=".claude/super-ralph-loop.local.md"
 
 if [[ ! -f "$RALPH_STATE_FILE" ]]; then
   # No active loop - allow exit
+  debug "No state file found at $RALPH_STATE_FILE — allowing exit"
   exit 0
 fi
 
+debug "State file found: $RALPH_STATE_FILE"
+
 # Parse markdown frontmatter (YAML between ---) and extract values
-FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$RALPH_STATE_FILE")
-ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//')
-MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//')
+FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$RALPH_STATE_FILE") || true
+ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//' || true)
+MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//' || true)
 # Extract completion_promise and strip surrounding quotes if present
-COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/')
+COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/' || true)
+
+debug "Parsed: iteration=$ITERATION max=$MAX_ITERATIONS promise=$COMPLETION_PROMISE"
 
 # Validate numeric fields before arithmetic operations
 if [[ ! "$ITERATION" =~ ^[0-9]+$ ]]; then
@@ -32,6 +50,7 @@ if [[ ! "$ITERATION" =~ ^[0-9]+$ ]]; then
   echo "" >&2
   echo "   This usually means the state file was manually edited or corrupted." >&2
   echo "   Super-Ralph loop is stopping. Run /using-super-ralph again to start fresh." >&2
+  debug "ERROR: iteration field invalid: '$ITERATION'"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
@@ -43,6 +62,7 @@ if [[ ! "$MAX_ITERATIONS" =~ ^[0-9]+$ ]]; then
   echo "" >&2
   echo "   This usually means the state file was manually edited or corrupted." >&2
   echo "   Super-Ralph loop is stopping. Run /using-super-ralph again to start fresh." >&2
+  debug "ERROR: max_iterations field invalid: '$MAX_ITERATIONS'"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
@@ -50,21 +70,34 @@ fi
 # Check if max iterations reached
 if [[ $MAX_ITERATIONS -gt 0 ]] && [[ $ITERATION -ge $MAX_ITERATIONS ]]; then
   echo "🛑 Super-Ralph loop: Max iterations ($MAX_ITERATIONS) reached."
+  debug "Max iterations reached ($ITERATION >= $MAX_ITERATIONS)"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
 
 # Get transcript path from hook input
-TRANSCRIPT_PATH=$(echo "$HOOK_INPUT" | jq -r '.transcript_path')
+TRANSCRIPT_PATH=$(echo "$HOOK_INPUT" | jq -r '.transcript_path' 2>/dev/null) || true
+
+if [[ -z "$TRANSCRIPT_PATH" ]] || [[ "$TRANSCRIPT_PATH" == "null" ]]; then
+  echo "⚠️  Super-Ralph loop: No transcript_path in hook input" >&2
+  echo "   This may indicate a Claude Code version incompatibility." >&2
+  echo "   Super-Ralph loop is stopping." >&2
+  debug "ERROR: transcript_path missing or null from hook input"
+  rm "$RALPH_STATE_FILE"
+  exit 0
+fi
 
 if [[ ! -f "$TRANSCRIPT_PATH" ]]; then
   echo "⚠️  Super-Ralph loop: Transcript file not found" >&2
   echo "   Expected: $TRANSCRIPT_PATH" >&2
   echo "   This is unusual and may indicate a Claude Code internal issue." >&2
   echo "   Super-Ralph loop is stopping." >&2
+  debug "ERROR: transcript file not found: $TRANSCRIPT_PATH"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
+
+debug "Transcript: $TRANSCRIPT_PATH"
 
 # Read last assistant message from transcript (JSONL format - one JSON per line)
 # First check if there are any assistant messages
@@ -73,43 +106,38 @@ if ! grep -q '"role":"assistant"' "$TRANSCRIPT_PATH"; then
   echo "   Transcript: $TRANSCRIPT_PATH" >&2
   echo "   This is unusual and may indicate a transcript format issue" >&2
   echo "   Super-Ralph loop is stopping." >&2
+  debug "ERROR: no assistant messages in transcript"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
 
 # Extract last assistant message with explicit error handling
-LAST_LINE=$(grep '"role":"assistant"' "$TRANSCRIPT_PATH" | tail -1)
+LAST_LINE=$(grep '"role":"assistant"' "$TRANSCRIPT_PATH" | tail -1) || true
 if [[ -z "$LAST_LINE" ]]; then
   echo "⚠️  Super-Ralph loop: Failed to extract last assistant message" >&2
   echo "   Super-Ralph loop is stopping." >&2
+  debug "ERROR: failed to extract last assistant line"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
 
-# Parse JSON with error handling
+# Parse JSON with error handling — use || true to prevent crash
 LAST_OUTPUT=$(echo "$LAST_LINE" | jq -r '
   .message.content |
   map(select(.type == "text")) |
   map(.text) |
   join("\n")
-' 2>&1)
-
-# Check if jq succeeded
-if [[ $? -ne 0 ]]; then
-  echo "⚠️  Super-Ralph loop: Failed to parse assistant message JSON" >&2
-  echo "   Error: $LAST_OUTPUT" >&2
-  echo "   This may indicate a transcript format issue" >&2
-  echo "   Super-Ralph loop is stopping." >&2
-  rm "$RALPH_STATE_FILE"
-  exit 0
-fi
+' 2>/dev/null) || true
 
 if [[ -z "$LAST_OUTPUT" ]]; then
   echo "⚠️  Super-Ralph loop: Assistant message contained no text content" >&2
   echo "   Super-Ralph loop is stopping." >&2
+  debug "ERROR: empty text content from jq parse"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
+
+debug "Parsed assistant output (${#LAST_OUTPUT} chars)"
 
 # Check for completion promise (only if set)
 if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
@@ -122,6 +150,7 @@ if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
   # == in [[ ]] does glob pattern matching which breaks with *, ?, [ characters
   if [[ -n "$PROMISE_TEXT" ]] && [[ "$PROMISE_TEXT" = "$COMPLETION_PROMISE" ]]; then
     echo "✅ Super-Ralph loop: Detected <promise>$COMPLETION_PROMISE</promise>"
+    debug "Completion promise matched — stopping loop"
     rm "$RALPH_STATE_FILE"
     exit 0
   fi
@@ -133,7 +162,7 @@ NEXT_ITERATION=$((ITERATION + 1))
 # Extract prompt (everything after the closing ---)
 # Skip first --- line, skip until second --- line, then print everything after
 # Use i>=2 instead of i==2 to handle --- in prompt content
-PROMPT_TEXT=$(awk '/^---$/{i++; next} i>=2' "$RALPH_STATE_FILE")
+PROMPT_TEXT=$(awk '/^---$/{i++; next} i>=2' "$RALPH_STATE_FILE") || true
 
 if [[ -z "$PROMPT_TEXT" ]]; then
   echo "⚠️  Super-Ralph loop: State file corrupted or incomplete" >&2
@@ -145,6 +174,7 @@ if [[ -z "$PROMPT_TEXT" ]]; then
   echo "     • File was corrupted during writing" >&2
   echo "" >&2
   echo "   Super-Ralph loop is stopping. Run /using-super-ralph again to start fresh." >&2
+  debug "ERROR: no prompt text in state file"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
@@ -161,6 +191,8 @@ if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
 else
   SYSTEM_MSG="🔄 Super-Ralph iteration $NEXT_ITERATION | No completion promise set - loop runs infinitely"
 fi
+
+debug "Blocking exit — iteration $NEXT_ITERATION"
 
 # Output JSON to block the stop and feed prompt back
 # The "reason" field contains the prompt that will be sent back to Claude
