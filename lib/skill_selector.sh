@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # skill_selector.sh - Task Classification and Skill Selection for Super-Ralph
-# Analyzes fix_plan.md tasks and determines which superpowers skill to invoke
+# Analyzes fix_plan.md tasks and determines which super-ralph skill to invoke
 
 SUPER_RALPH_DIR="${SUPER_RALPH_DIR:-.ralph}"
 

@@ -34,7 +34,7 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
    - If quality issues found, implementer fixes, re-review
    - Mark task complete
 3. **After all tasks:** Dispatch final code reviewer for entire implementation
-4. **Use finishing-a-development-branch skill**
+4. **Use sr-finishing-a-development-branch skill**
 
 ## Prompt Templates
 
@@ -72,13 +72,13 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 ## Integration
 
 **Required workflow skills:**
-- **using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **writing-plans** - Creates the plan this skill executes
-- **requesting-code-review** - Code review template for reviewer subagents
-- **finishing-a-development-branch** - Complete development after all tasks
+- **sr-using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **sr-writing-plans** - Creates the plan this skill executes
+- **sr-requesting-code-review** - Code review template for reviewer subagents
+- **sr-finishing-a-development-branch** - Complete development after all tasks
 
 **Subagents should use:**
-- **test-driven-development** - Subagents follow TDD for each task
+- **sr-test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
-- **executing-plans** - Use for parallel session instead of same-session execution
+- **sr-executing-plans** - Use for parallel session instead of same-session execution

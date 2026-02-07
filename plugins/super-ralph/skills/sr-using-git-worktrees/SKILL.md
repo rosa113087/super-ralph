@@ -11,7 +11,7 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 **Core principle:** Systematic directory selection + safety verification = reliable isolation.
 
-**Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
+**Announce at start:** "I'm using the sr-using-git-worktrees skill to set up an isolated workspace."
 
 ## Directory Selection Process
 
@@ -143,9 +143,9 @@ Ready to implement <feature-name>
 ## Integration
 
 **Called by:**
-- **brainstorming** - when design is approved and implementation follows
-- **subagent-driven-development** - REQUIRED before executing any tasks
-- **executing-plans** - REQUIRED before executing any tasks
+- **sr-brainstorming** - when design is approved and implementation follows
+- **sr-subagent-driven-development** - REQUIRED before executing any tasks
+- **sr-executing-plans** - REQUIRED before executing any tasks
 
 **Pairs with:**
-- **finishing-a-development-branch** - REQUIRED for cleanup after work complete
+- **sr-finishing-a-development-branch** - REQUIRED for cleanup after work complete

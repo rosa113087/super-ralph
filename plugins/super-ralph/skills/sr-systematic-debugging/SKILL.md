@@ -104,7 +104,7 @@ You MUST complete each phase before proceeding to the next.
 
 ### Phase 4: Implementation
 
-1. **Create Failing Test Case** - MUST have before fixing. Use test-driven-development skill.
+1. **Create Failing Test Case** - MUST have before fixing. Use sr-test-driven-development skill.
 2. **Implement Single Fix** - ONE change at a time. No "while I'm here" improvements.
 3. **Verify Fix** - Test passes? No other tests broken? Issue actually resolved?
 4. **If Fix Doesn't Work** - If < 3 attempts: Return to Phase 1. **If >= 3: STOP and question the architecture.**
@@ -153,5 +153,5 @@ If you catch yourself thinking:
 - **condition-based-waiting.md** - Replace arbitrary timeouts with condition polling
 
 **Related skills:**
-- **test-driven-development** - For creating failing test case (Phase 4, Step 1)
-- **verification-before-completion** - Verify fix worked before claiming success
+- **sr-test-driven-development** - For creating failing test case (Phase 4, Step 1)
+- **sr-verification-before-completion** - Verify fix worked before claiming success

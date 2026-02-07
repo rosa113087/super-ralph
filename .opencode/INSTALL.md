@@ -33,7 +33,7 @@ cmd /c mklink /J "$env:USERPROFILE\.config\opencode\skills\super-ralph" "$env:US
 
 Restart OpenCode. The skills will be automatically discovered.
 
-Verify by asking: "do you have superpowers?"
+Verify by asking: "do you have super-ralph skills?"
 
 ## Usage
 
@@ -69,7 +69,7 @@ use skill tool to load super-ralph/systematic-debugging
 - `finishing-a-development-branch` - Verify tests, present 4 options, clean up
 - `dispatching-parallel-agents` - One agent per independent problem domain
 - `using-git-worktrees` - Isolated workspaces with safety verification
-- `using-superpowers` - Master orchestrator: invoke skills before any action
+- `using-super-ralph` - Master orchestrator: invoke skills before any action
 - `writing-skills` - TDD applied to process documentation
 
 ## Updating

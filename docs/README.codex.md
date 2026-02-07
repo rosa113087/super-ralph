@@ -43,7 +43,7 @@ When you describe a task, Codex automatically matches it to the relevant skill:
 | finishing-a-development-branch | All tasks complete, ready to integrate |
 | dispatching-parallel-agents | 3+ independent failures |
 | using-git-worktrees | Feature isolation |
-| using-superpowers | Every conversation (master orchestrator) |
+| using-super-ralph | Every conversation (master orchestrator) |
 | writing-skills | Creating/editing skills |
 
 ## Updating

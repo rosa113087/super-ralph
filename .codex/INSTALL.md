@@ -37,7 +37,7 @@ You should see a symlink pointing to your super-ralph skills directory containin
 brainstorming, writing-plans, test-driven-development, systematic-debugging,
 verification-before-completion, subagent-driven-development, executing-plans,
 requesting-code-review, receiving-code-review, finishing-a-development-branch,
-dispatching-parallel-agents, using-git-worktrees, using-superpowers, writing-skills.
+dispatching-parallel-agents, using-git-worktrees, using-super-ralph, writing-skills.
 
 ## Updating
 

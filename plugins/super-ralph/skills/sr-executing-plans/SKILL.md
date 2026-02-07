@@ -11,7 +11,7 @@ Load plan, review critically, execute tasks in batches, report for review betwee
 
 **Core principle:** Batch execution with checkpoints for architect review.
 
-**Announce at start:** "I'm using the executing-plans skill to implement this plan."
+**Announce at start:** "I'm using the sr-executing-plans skill to implement this plan."
 
 ## The Process
 
@@ -45,8 +45,8 @@ Based on feedback:
 ### Step 5: Complete Development
 
 After all tasks complete and verified:
-- Announce: "I'm using the finishing-a-development-branch skill to complete this work."
-- **REQUIRED SUB-SKILL:** Use finishing-a-development-branch
+- Announce: "I'm using the sr-finishing-a-development-branch skill to complete this work."
+- **REQUIRED SUB-SKILL:** Use sr-finishing-a-development-branch
 - Follow that skill to verify tests, present options, execute choice
 
 ## When to Stop and Ask for Help
@@ -79,6 +79,6 @@ After all tasks complete and verified:
 ## Integration
 
 **Required workflow skills:**
-- **using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **writing-plans** - Creates the plan this skill executes
-- **finishing-a-development-branch** - Complete development after all tasks
+- **sr-using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **sr-writing-plans** - Creates the plan this skill executes
+- **sr-finishing-a-development-branch** - Complete development after all tasks
