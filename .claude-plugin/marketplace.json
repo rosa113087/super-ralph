@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "super-ralph",
+  "description": "Ralph autonomous loop + Superpowers skills for production-ready autonomous AI development",
+  "owner": {
+    "name": "aezizhu",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "super-ralph",
+      "description": "Ralph autonomous loop + Superpowers skills: brainstorming, TDD, systematic debugging, subagent-driven development, code review, and verification workflows",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "aezizhu",
+        "email": ""
+      },
+      "source": ".",
+      "homepage": "https://github.com/aezizhu/super-ralph"
+    }
+  ]
+}

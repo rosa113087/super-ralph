@@ -282,7 +282,8 @@ Restart Droid to discover the skills.
 
 **Method 1: Install as plugin (recommended)**
 
-In Claude Code, run:
+Super-Ralph ships with a Claude Code marketplace manifest (`.claude-plugin/marketplace.json`), so it works as a native plugin source:
+
 ```
 /plugin add https://github.com/aezizhu/super-ralph
 ```
@@ -304,6 +305,8 @@ Add to your project's `CLAUDE.md`:
 ```markdown
 Read and follow skills from ~/.super-ralph/skills/ directory.
 ```
+
+**Detailed docs:** [docs/README.claude-code.md](docs/README.claude-code.md)
 
 ### Codex
 
