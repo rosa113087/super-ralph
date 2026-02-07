@@ -14,8 +14,9 @@ Select **super-ralph** from the plugin list to install. Restart Claude Code for 
 
 ## What You Get
 
-**3 commands** (Ralph Loop):
-- `/sr-ralph-loop` — Start an autonomous development loop
+**4 commands** (Ralph Loop):
+- `/using-super-ralph` — **Main entry point**: start autonomous loop + methodology enforcement
+- `/sr-ralph-loop` — Alias for `/using-super-ralph`
 - `/sr-cancel-ralph` — Cancel an active loop
 - `/sr-help` — Show all commands and skills
 
@@ -45,9 +46,9 @@ When you describe a task, Claude Code automatically matches it to the relevant s
 - "Fix this bug" → sr-systematic-debugging → sr-test-driven-development
 - "Is this done?" → sr-verification-before-completion
 
-For autonomous loops, use `/sr-ralph-loop`:
+For autonomous loops, use `/using-super-ralph`:
 ```
-/sr-ralph-loop "Build a todo API" --completion-promise "DONE" --max-iterations 15
+/using-super-ralph "Build a todo API" --completion-promise "DONE" --max-iterations 15
 ```
 
 ## Updating

@@ -51,10 +51,22 @@ After adding the marketplace, Claude Code will show **super-ralph** as an availa
 
 ### Step 3: Restart Claude Code
 
-Exit and reopen Claude Code. The 14 skills will be available immediately:
+Exit and reopen Claude Code. Start with:
 
 ```
-/using-super-ralph          Master orchestrator — invoke skills before any action
+/using-super-ralph "Your task here" --max-iterations 15
+```
+
+This starts the autonomous loop with full methodology enforcement. All 14 skills + 4 commands are available:
+
+```
+# Commands
+/using-super-ralph          Start Super-Ralph loop (main entry point)
+/sr-ralph-loop              Alias for /using-super-ralph
+/sr-cancel-ralph            Cancel an active loop
+/sr-help                    Show all commands and skills
+
+# Skills (auto-triggered)
 /sr-brainstorming           Explore intent, requirements, and design before coding
 /sr-writing-plans           Create detailed implementation plans with bite-sized tasks
 /sr-test-driven-development Strict RED-GREEN-REFACTOR TDD workflow
