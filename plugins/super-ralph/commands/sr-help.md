@@ -38,8 +38,6 @@ Super-Ralph combines two proven systems into one plugin:
 4. Same prompt fed back — you see your previous work
 5. Continues until promise detected or max iterations
 
-**Aliases:** `/sr-ralph-loop` does the same thing.
-
 ---
 
 ### /sr-cancel-ralph

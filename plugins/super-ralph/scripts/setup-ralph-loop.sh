@@ -18,7 +18,7 @@ while [[ $# -gt 0 ]]; do
 Ralph Loop - Interactive self-referential development loop
 
 USAGE:
-  /sr-ralph-loop[PROMPT...] [OPTIONS]
+  /using-super-ralph[PROMPT...] [OPTIONS]
 
 ARGUMENTS:
   PROMPT...    Initial prompt to start the loop (can be multiple words without quotes)
@@ -40,10 +40,10 @@ DESCRIPTION:
   - Learning how Ralph works
 
 EXAMPLES:
-  /sr-ralph-loopBuild a todo API --completion-promise 'DONE' --max-iterations 20
-  /sr-ralph-loop--max-iterations 10 Fix the auth bug
-  /sr-ralph-loopRefactor cache layer  (runs forever)
-  /sr-ralph-loop--completion-promise 'TASK COMPLETE' Create a REST API
+  /using-super-ralphBuild a todo API --completion-promise 'DONE' --max-iterations 20
+  /using-super-ralph--max-iterations 10 Fix the auth bug
+  /using-super-ralphRefactor cache layer  (runs forever)
+  /using-super-ralph--completion-promise 'TASK COMPLETE' Create a REST API
 
 STOPPING:
   Only by reaching --max-iterations or detecting --completion-promise
@@ -119,11 +119,11 @@ if [[ -z "$PROMPT" ]]; then
   echo "   Super-Ralph needs a task description to work on." >&2
   echo "" >&2
   echo "   Examples:" >&2
-  echo "     /sr-ralph-loopBuild a REST API for todos" >&2
-  echo "     /sr-ralph-loopFix the auth bug --max-iterations 20" >&2
-  echo "     /sr-ralph-loop--completion-promise 'DONE' Refactor code" >&2
+  echo "     /using-super-ralphBuild a REST API for todos" >&2
+  echo "     /using-super-ralphFix the auth bug --max-iterations 20" >&2
+  echo "     /using-super-ralph--completion-promise 'DONE' Refactor code" >&2
   echo "" >&2
-  echo "   For all options: /sr-ralph-loop--help" >&2
+  echo "   For all options: /using-super-ralph--help" >&2
   exit 1
 fi
 

@@ -57,12 +57,11 @@ Exit and reopen Claude Code. Start with:
 /using-super-ralph "Your task here" --max-iterations 15
 ```
 
-This starts the autonomous loop with full methodology enforcement. All 14 skills + 4 commands are available:
+This starts the autonomous loop with full methodology enforcement. All 14 skills + 3 commands are available:
 
 ```
 # Commands
 /using-super-ralph          Start Super-Ralph loop (main entry point)
-/sr-ralph-loop              Alias for /using-super-ralph
 /sr-cancel-ralph            Cancel an active loop
 /sr-help                    Show all commands and skills
 

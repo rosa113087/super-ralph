@@ -31,7 +31,7 @@ if [[ ! "$ITERATION" =~ ^[0-9]+$ ]]; then
   echo "   Problem: 'iteration' field is not a valid number (got: '$ITERATION')" >&2
   echo "" >&2
   echo "   This usually means the state file was manually edited or corrupted." >&2
-  echo "   Super-Ralph loop is stopping. Run /sr-ralph-loop again to start fresh." >&2
+  echo "   Super-Ralph loop is stopping. Run /using-super-ralph again to start fresh." >&2
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
@@ -42,7 +42,7 @@ if [[ ! "$MAX_ITERATIONS" =~ ^[0-9]+$ ]]; then
   echo "   Problem: 'max_iterations' field is not a valid number (got: '$MAX_ITERATIONS')" >&2
   echo "" >&2
   echo "   This usually means the state file was manually edited or corrupted." >&2
-  echo "   Super-Ralph loop is stopping. Run /sr-ralph-loop again to start fresh." >&2
+  echo "   Super-Ralph loop is stopping. Run /using-super-ralph again to start fresh." >&2
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
@@ -144,7 +144,7 @@ if [[ -z "$PROMPT_TEXT" ]]; then
   echo "     • State file was manually edited" >&2
   echo "     • File was corrupted during writing" >&2
   echo "" >&2
-  echo "   Super-Ralph loop is stopping. Run /sr-ralph-loop again to start fresh." >&2
+  echo "   Super-Ralph loop is stopping. Run /using-super-ralph again to start fresh." >&2
   rm "$RALPH_STATE_FILE"
   exit 0
 fi

@@ -14,9 +14,8 @@ Select **super-ralph** from the plugin list to install. Restart Claude Code for 
 
 ## What You Get
 
-**4 commands** (Ralph Loop):
+**3 commands** (Ralph Loop):
 - `/using-super-ralph` — **Main entry point**: start autonomous loop + methodology enforcement
-- `/sr-ralph-loop` — Alias for `/using-super-ralph`
 - `/sr-cancel-ralph` — Cancel an active loop
 - `/sr-help` — Show all commands and skills
 
