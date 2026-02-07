@@ -185,11 +185,34 @@ TEMP_FILE="${RALPH_STATE_FILE}.tmp.$$"
 sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$RALPH_STATE_FILE" > "$TEMP_FILE"
 mv "$TEMP_FILE" "$RALPH_STATE_FILE"
 
-# Build system message with iteration count and completion promise info
+# Build system message with iteration count, completion info, AND methodology enforcement
+# This is critical — without the methodology context, subsequent iterations lose the
+# Super-Ralph skill enforcement that was present in the original /using-super-ralph command.
+METHODOLOGY_CONTEXT="
+
+You are running Super-Ralph. Use sr- prefixed skills for ALL work — no exceptions.
+
+MANDATORY SKILL ROUTING:
+- New feature/creative work → invoke sr-brainstorming FIRST
+- Create implementation plan → invoke sr-writing-plans
+- ANY implementation/coding → invoke sr-test-driven-development (RED-GREEN-REFACTOR)
+- Bug/error/test failure → invoke sr-systematic-debugging BEFORE proposing any fix
+- Before claiming done/committing → invoke sr-verification-before-completion
+- Independent tasks → invoke sr-subagent-driven-development
+- Code review → invoke sr-requesting-code-review
+- All tasks complete → invoke sr-finishing-a-development-branch
+
+ENFORCEMENT:
+1. ANNOUNCE before using any skill: \"I'm using sr-[name] to [purpose]\"
+2. NEVER claim success without running commands and reading output
+3. NEVER propose fixes without root cause investigation
+4. ONE fix at a time — test each individually
+5. Evidence before assertions — every claim needs command output proof"
+
 if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
-  SYSTEM_MSG="🔄 Super-Ralph iteration $NEXT_ITERATION | To stop: output <promise>$COMPLETION_PROMISE</promise> (ONLY when statement is TRUE - do not lie to exit!)"
+  SYSTEM_MSG="🔄 Super-Ralph iteration $NEXT_ITERATION | To stop: output <promise>$COMPLETION_PROMISE</promise> (ONLY when statement is TRUE - do not lie to exit!)${METHODOLOGY_CONTEXT}"
 else
-  SYSTEM_MSG="🔄 Super-Ralph iteration $NEXT_ITERATION | No completion promise set - loop runs infinitely"
+  SYSTEM_MSG="🔄 Super-Ralph iteration $NEXT_ITERATION | No completion promise set - loop runs infinitely${METHODOLOGY_CONTEXT}"
 fi
 
 debug "Blocking exit — iteration $NEXT_ITERATION"
