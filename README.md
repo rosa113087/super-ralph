@@ -287,7 +287,7 @@ In Claude Code, run:
 /plugin add https://github.com/aezizhu/super-ralph
 ```
 
-This registers Super-Ralph as a Claude Code plugin. All 14 skills will be auto-discovered. Start a new session for skills to take effect.
+All 14 skills will be auto-discovered. Start a new session for skills to take effect.
 
 To update later:
 ```
@@ -307,19 +307,36 @@ Read and follow skills from ~/.super-ralph/skills/ directory.
 
 ### Codex
 
-```bash
-git clone https://github.com/aezizhu/super-ralph.git ~/.codex/super-ralph
-mkdir -p ~/.agents/skills
-ln -s ~/.codex/super-ralph/skills ~/.agents/skills/super-ralph
+Tell Codex:
+
 ```
+Fetch and follow instructions from https://raw.githubusercontent.com/aezizhu/super-ralph/refs/heads/main/.codex/INSTALL.md
+```
+
+**Detailed docs:** [docs/README.codex.md](docs/README.codex.md)
 
 ### OpenCode
 
-```bash
-git clone https://github.com/aezizhu/super-ralph.git ~/.config/opencode/super-ralph
-mkdir -p ~/.config/opencode/skills
-ln -s ~/.config/opencode/super-ralph/skills ~/.config/opencode/skills/super-ralph
+Tell OpenCode:
+
 ```
+Fetch and follow instructions from https://raw.githubusercontent.com/aezizhu/super-ralph/refs/heads/main/.opencode/INSTALL.md
+```
+
+**Detailed docs:** [docs/README.opencode.md](docs/README.opencode.md)
+
+### Factory Droid
+
+```bash
+git clone https://github.com/aezizhu/super-ralph.git ~/.super-ralph
+for skill in ~/.super-ralph/skills/*/; do
+  name=$(basename "$skill")
+  mkdir -p ~/.factory/skills/$name
+  cp -r "$skill"* ~/.factory/skills/$name/
+done
+```
+
+Restart Droid to discover the skills.
 
 ### Other Tools (Cursor, Warp, Amp, etc.)
 
