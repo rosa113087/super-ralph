@@ -190,7 +190,11 @@ mv "$TEMP_FILE" "$RALPH_STATE_FILE"
 # Super-Ralph skill enforcement that was present in the original /using-super-ralph command.
 METHODOLOGY_CONTEXT="
 
-You are running Super-Ralph. Use sr- prefixed skills for ALL work — no exceptions.
+You are running Super-Ralph. This is a CONTINUATION of an autonomous loop.
+
+FIRST ACTION REQUIRED: Invoke the skill 'using-super-ralph' to reload the full Super-Ralph methodology before doing ANY other work. This is non-negotiable — it loads the complete enforcement rules, red flags table, and skill routing that you need.
+
+After loading the methodology, use sr- prefixed skills for ALL work — no exceptions.
 
 MANDATORY SKILL ROUTING:
 - New feature/creative work → invoke sr-brainstorming FIRST
@@ -207,7 +211,8 @@ ENFORCEMENT:
 2. NEVER claim success without running commands and reading output
 3. NEVER propose fixes without root cause investigation
 4. ONE fix at a time — test each individually
-5. Evidence before assertions — every claim needs command output proof"
+5. Evidence before assertions — every claim needs command output proof
+6. NEVER invoke superpowers:* skills — use sr- prefixed Super-Ralph versions instead"
 
 if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
   SYSTEM_MSG="🔄 Super-Ralph iteration $NEXT_ITERATION | To stop: output <promise>$COMPLETION_PROMISE</promise> (ONLY when statement is TRUE - do not lie to exit!)${METHODOLOGY_CONTEXT}"
