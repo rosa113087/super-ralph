@@ -16,27 +16,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install bats
-        run: |
-          if [ "$RUNNER_OS" = "macOS" ]; then
-            brew install bats-core
-          else
-            sudo apt-get update && sudo apt-get install -y bats
-          fi
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install bats-core jq
 
-      - name: Install jq
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
-          if [ "$RUNNER_OS" = "macOS" ]; then
-            brew install jq
-          else
-            sudo apt-get install -y jq
-          fi
+          sudo apt-get update
+          sudo apt-get install -y jq shellcheck
+          # Install bats-core from source for latest version
+          git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+          sudo /tmp/bats-core/install.sh /usr/local
+
+      - name: Verify tools
+        run: |
+          bats --version
+          jq --version
 
       - name: Run tests
         run: bats tests/
 
       - name: ShellCheck
-        if: matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
+        run: >
+          shellcheck -x
+          --exclude=SC1091
+          standalone/lib/*.sh
+          standalone/super_ralph_loop.sh
+          standalone/install.sh
+          plugins/super-ralph/hooks/stop-hook.sh
+
+      - name: Version consistency check
         run: |
-          sudo apt-get install -y shellcheck
-          shellcheck standalone/lib/*.sh standalone/super_ralph_loop.sh standalone/install.sh plugins/super-ralph/hooks/stop-hook.sh || true
+          V1=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+          V2=$(jq -r '.version' plugins/super-ralph/.claude-plugin/plugin.json)
+          if [ "$V1" != "$V2" ]; then
+            echo "::error::Version mismatch: marketplace.json=$V1 plugin.json=$V2"
+            exit 1
+          fi
+          echo "Versions consistent: $V1"
