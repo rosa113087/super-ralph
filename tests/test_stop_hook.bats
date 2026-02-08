@@ -292,3 +292,75 @@ EOF
     [[ "$sys_msg" == *"Super-Ralph"* ]]
     [[ "$sys_msg" == *"sr-"* ]]
 }
+
+# ============================================================================
+# Edge case tests
+# ============================================================================
+
+@test "stop-hook: handles empty frontmatter" {
+    cat > "$TEST_DIR/.claude/super-ralph-loop.local.md" << 'EOF'
+---
+---
+Do work
+EOF
+    local transcript
+    transcript=$(create_transcript "Working")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    # State file should be removed (empty frontmatter = corrupted)
+    [ ! -f "$TEST_DIR/.claude/super-ralph-loop.local.md" ]
+}
+
+@test "stop-hook: handles corrupted max_iterations (non-numeric)" {
+    cat > "$TEST_DIR/.claude/super-ralph-loop.local.md" << 'EOF'
+---
+iteration: 1
+max_iterations: xyz
+completion_promise: null
+---
+Do work
+EOF
+    local transcript
+    transcript=$(create_transcript "Working")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    # State file should be removed (corrupted)
+    [ ! -f "$TEST_DIR/.claude/super-ralph-loop.local.md" ]
+}
+
+@test "stop-hook: handles no assistant messages in transcript" {
+    create_state_file 1 0
+    local transcript_file="$TEST_DIR/transcript.jsonl"
+    # Only user messages, no assistant
+    echo '{"role":"user","message":{"content":[{"type":"text","text":"hello"}]}}' > "$transcript_file"
+    local hook_input
+    hook_input=$(create_hook_input "$transcript_file")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    # State file should be removed (no assistant response)
+    [ ! -f "$TEST_DIR/.claude/super-ralph-loop.local.md" ]
+}
+
+@test "stop-hook: promise with quotes in completion_promise" {
+    create_state_file 1 0 '"All done"'
+    local transcript
+    transcript=$(create_transcript "Result: <promise>All done</promise>")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    # Promise should match (quotes are stripped by sed in frontmatter parsing)
+    [ ! -f "$TEST_DIR/.claude/super-ralph-loop.local.md" ]
+}

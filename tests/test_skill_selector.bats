@@ -103,6 +103,48 @@ teardown() {
     [ "$result" = "BUG" ]
 }
 
+# Pattern priority tests - BUG checked before FEATURE, REVIEW, etc.
+@test "classify_task: 'fix and add new feature' returns BUG (BUG wins over FEATURE)" {
+    result=$(classify_task "fix and add new feature")
+    [ "$result" = "BUG" ]
+}
+
+@test "classify_task: 'review the bug fix' returns BUG (BUG wins over REVIEW)" {
+    result=$(classify_task "review the bug fix")
+    [ "$result" = "BUG" ]
+}
+
+@test "classify_task: 'create a bug report' returns BUG (BUG wins over FEATURE)" {
+    result=$(classify_task "create a bug report")
+    [ "$result" = "BUG" ]
+}
+
+@test "classify_task: ALL CAPS 'FIX THIS BUG' returns BUG" {
+    result=$(classify_task "FIX THIS BUG")
+    [ "$result" = "BUG" ]
+}
+
+@test "classify_task: 'review and update docs' returns REVIEW (REVIEW wins over PLAN_TASK)" {
+    result=$(classify_task "review and update docs")
+    [ "$result" = "REVIEW" ]
+}
+
+# ============================================================================
+# all_tasks_complete edge cases
+# ============================================================================
+
+@test "all_tasks_complete: false when fix_plan is empty" {
+    touch "$SUPER_RALPH_DIR/fix_plan.md"
+    run all_tasks_complete
+    [ "$status" -eq 1 ]
+}
+
+@test "all_tasks_complete: false when fix_plan has no checkboxes" {
+    echo "# Just a heading" > "$SUPER_RALPH_DIR/fix_plan.md"
+    run all_tasks_complete
+    [ "$status" -eq 1 ]
+}
+
 # ============================================================================
 # get_skill_workflow tests
 # ============================================================================
