@@ -5,6 +5,10 @@
 
 SUPER_RALPH_DIR="${SUPER_RALPH_DIR:-.ralph}"
 
+# Source shared utilities
+GATE_UTILS_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "$GATE_UTILS_DIR/gate_utils.sh"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -47,30 +51,14 @@ VERIFIED_CLAIM_PATTERNS=(
 check_verification() {
     local output_file="$1"
 
-    if [[ ! -f "$output_file" ]]; then
-        return 0
-    fi
-
     local output_lower
-    output_lower=$(cat "$output_file" | tr '[:upper:]' '[:lower:]')
+    output_lower=$(read_lowercase "$output_file") || return 0
 
-    # Check for unverified claims
-    local unverified_count=0
-    for pattern in "${UNVERIFIED_CLAIM_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            unverified_count=$((unverified_count + 1))
-        fi
-    done
+    local unverified_count
+    unverified_count=$(count_pattern_matches "$output_lower" "${UNVERIFIED_CLAIM_PATTERNS[@]}")
+    local verified_count
+    verified_count=$(count_pattern_matches "$output_lower" "${VERIFIED_CLAIM_PATTERNS[@]}")
 
-    # Check for verified claims
-    local verified_count=0
-    for pattern in "${VERIFIED_CLAIM_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            verified_count=$((verified_count + 1))
-        fi
-    done
-
-    # If there are unverified claims but no verification evidence, flag it
     if [[ $unverified_count -gt 0 ]] && [[ $verified_count -eq 0 ]]; then
         return 1
     fi
@@ -89,26 +77,17 @@ analyze_verification_status() {
     fi
 
     local output_lower
-    output_lower=$(cat "$output_file" | tr '[:upper:]' '[:lower:]')
+    output_lower=$(read_lowercase "$output_file") || {
+        echo '{"verified": true, "unverified_claims": 0, "evidence_found": 0}' > "$result_file"
+        return 0
+    }
 
-    local unverified_claims=0
-    local evidence_found=0
-    local claim_details="[]"
-
-    for pattern in "${UNVERIFIED_CLAIM_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            unverified_claims=$((unverified_claims + 1))
-            local match
-            match=$(echo "$output_lower" | grep -oE "$pattern" | head -1)
-            claim_details=$(echo "$claim_details" | jq --arg m "$match" '. += [$m]' 2>/dev/null || echo "$claim_details")
-        fi
-    done
-
-    for pattern in "${VERIFIED_CLAIM_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            evidence_found=$((evidence_found + 1))
-        fi
-    done
+    local unverified_claims
+    unverified_claims=$(count_pattern_matches "$output_lower" "${UNVERIFIED_CLAIM_PATTERNS[@]}")
+    local evidence_found
+    evidence_found=$(count_pattern_matches "$output_lower" "${VERIFIED_CLAIM_PATTERNS[@]}")
+    local claim_details
+    claim_details=$(collect_pattern_details "$output_lower" "${UNVERIFIED_CLAIM_PATTERNS[@]}")
 
     local verified="true"
     if [[ $unverified_claims -gt 0 ]] && [[ $evidence_found -eq 0 ]]; then

@@ -6,6 +6,10 @@
 
 SUPER_RALPH_DIR="${SUPER_RALPH_DIR:-.ralph}"
 
+# Source shared utilities
+GATE_UTILS_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "$GATE_UTILS_DIR/gate_utils.sh"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -47,45 +51,17 @@ TDD_VIOLATION_PATTERNS=(
 check_tdd_compliance() {
     local output_file="$1"
 
-    if [[ ! -f "$output_file" ]]; then
-        return 0  # No output to check
-    fi
-
-    local output_content
-    output_content=$(cat "$output_file")
     local output_lower
-    output_lower=$(echo "$output_content" | tr '[:upper:]' '[:lower:]')
+    output_lower=$(read_lowercase "$output_file") || return 0
 
-    # Check for TDD violation patterns
-    local violations=0
-    for pattern in "${TDD_VIOLATION_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            violations=$((violations + 1))
-        fi
-    done
+    local violations
+    violations=$(count_pattern_matches "$output_lower" "${TDD_VIOLATION_PATTERNS[@]}")
 
-    # Check for RED phase indicators
-    local red_indicators=0
-    for pattern in "${TDD_RED_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            red_indicators=$((red_indicators + 1))
-        fi
-    done
-
-    # Check for GREEN phase indicators
-    local green_indicators=0
-    for pattern in "${TDD_GREEN_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            green_indicators=$((green_indicators + 1))
-        fi
-    done
-
-    # Determine compliance
     if [[ $violations -gt 0 ]]; then
-        return 1  # Violations found
+        return 1
     fi
 
-    return 0  # Compliant (or no clear signal either way)
+    return 0
 }
 
 # Analyze TDD compliance from the RALPH_STATUS block
@@ -100,36 +76,19 @@ analyze_tdd_status() {
     fi
 
     local output_lower
-    output_lower=$(cat "$output_file" | tr '[:upper:]' '[:lower:]')
+    output_lower=$(read_lowercase "$output_file") || {
+        echo '{"compliant": true, "violations": 0, "red_indicators": 0, "green_indicators": 0}' > "$result_file"
+        return 0
+    }
 
-    local violations=0
-    local red_indicators=0
-    local green_indicators=0
-    local violation_details="[]"
-
-    # Count violations
-    for pattern in "${TDD_VIOLATION_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            violations=$((violations + 1))
-            local match
-            match=$(echo "$output_lower" | grep -oE "$pattern" | head -1)
-            violation_details=$(echo "$violation_details" | jq --arg m "$match" '. += [$m]' 2>/dev/null || echo "$violation_details")
-        fi
-    done
-
-    # Count RED indicators
-    for pattern in "${TDD_RED_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            red_indicators=$((red_indicators + 1))
-        fi
-    done
-
-    # Count GREEN indicators
-    for pattern in "${TDD_GREEN_PATTERNS[@]}"; do
-        if echo "$output_lower" | grep -qE "$pattern"; then
-            green_indicators=$((green_indicators + 1))
-        fi
-    done
+    local violations
+    violations=$(count_pattern_matches "$output_lower" "${TDD_VIOLATION_PATTERNS[@]}")
+    local red_indicators
+    red_indicators=$(count_pattern_matches "$output_lower" "${TDD_RED_PATTERNS[@]}")
+    local green_indicators
+    green_indicators=$(count_pattern_matches "$output_lower" "${TDD_GREEN_PATTERNS[@]}")
+    local violation_details
+    violation_details=$(collect_pattern_details "$output_lower" "${TDD_VIOLATION_PATTERNS[@]}")
 
     local compliant="true"
     if [[ $violations -gt 0 ]]; then

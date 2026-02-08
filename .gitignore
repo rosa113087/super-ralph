@@ -3,3 +3,13 @@
 .ralph/
 .worktrees/
 node_modules/
+
+# Super-Ralph runtime state
+.claude/super-ralph-loop.local.md
+.claude/super-ralph-debug.log
+.ralphrc
+
+# Editor
+*.swp
+*.swo
+*~
