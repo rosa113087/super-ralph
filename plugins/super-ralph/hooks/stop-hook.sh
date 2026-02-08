@@ -130,9 +130,13 @@ LAST_OUTPUT=$(echo "$LAST_LINE" | jq -r '
 ' 2>/dev/null) || true
 
 if [[ -z "$LAST_OUTPUT" ]]; then
+  # Try to diagnose what went wrong with jq parsing
+  local_jq_error=$(echo "$LAST_LINE" | jq -r '.message.content' 2>&1 >/dev/null) || true
+  debug "ERROR: empty text content from jq parse. jq diagnostic: $local_jq_error"
+  debug "ERROR: LAST_LINE first 200 chars: ${LAST_LINE:0:200}"
   echo "⚠️  Super-Ralph loop: Assistant message contained no text content" >&2
+  echo "   This may indicate a transcript format change in Claude Code." >&2
   echo "   Super-Ralph loop is stopping." >&2
-  debug "ERROR: empty text content from jq parse"
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
@@ -141,10 +145,23 @@ debug "Parsed assistant output (${#LAST_OUTPUT} chars)"
 
 # Check for completion promise (only if set)
 if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
-  # Extract text from <promise> tags using Perl for multiline support
-  # -0777 slurps entire input, s flag makes . match newlines
-  # .*? is non-greedy (takes FIRST tag), whitespace normalized
-  PROMISE_TEXT=$(echo "$LAST_OUTPUT" | perl -0777 -pe 's/.*?<promise>(.*?)<\/promise>.*/$1/s; s/^\s+|\s+$//g; s/\s+/ /g' 2>/dev/null || echo "")
+  # Extract text from <promise> tags
+  # Try perl first (multiline support), fall back to bash (single-line)
+  PROMISE_TEXT=""
+  if command -v perl &>/dev/null; then
+    # -0777 slurps entire input, s flag makes . match newlines
+    # .*? is non-greedy (takes FIRST tag), whitespace normalized
+    PROMISE_TEXT=$(echo "$LAST_OUTPUT" | perl -0777 -pe 's/.*?<promise>(.*?)<\/promise>.*/$1/s; s/^\s+|\s+$//g; s/\s+/ /g' 2>/dev/null || echo "")
+  else
+    # Pure bash fallback: extract single-line <promise> tags
+    if [[ "$LAST_OUTPUT" =~ \<promise\>(.*)\</promise\> ]]; then
+      PROMISE_TEXT="${BASH_REMATCH[1]}"
+      # Trim whitespace
+      PROMISE_TEXT="${PROMISE_TEXT#"${PROMISE_TEXT%%[![:space:]]*}"}"
+      PROMISE_TEXT="${PROMISE_TEXT%"${PROMISE_TEXT##*[![:space:]]}"}"
+    fi
+    debug "Using bash fallback for promise extraction (perl not available)"
+  fi
 
   # Use = for literal string comparison (not pattern matching)
   # == in [[ ]] does glob pattern matching which breaks with *, ?, [ characters
@@ -182,8 +199,23 @@ fi
 # Update iteration in frontmatter (portable across macOS and Linux)
 # sed -i.bak works on both macOS and Linux; remove backup after
 debug "Updating iteration: $ITERATION -> $NEXT_ITERATION (CWD: $(pwd))"
-sed -i.bak "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$RALPH_STATE_FILE"
+if ! sed -i.bak "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$RALPH_STATE_FILE"; then
+  echo "⚠️  Super-Ralph loop: Failed to update iteration counter" >&2
+  echo "   File: $RALPH_STATE_FILE" >&2
+  echo "   This may indicate a filesystem permission issue." >&2
+  echo "   Super-Ralph loop is stopping." >&2
+  debug "ERROR: sed failed to update iteration"
+  rm -f "${RALPH_STATE_FILE}.bak"
+  rm "$RALPH_STATE_FILE"
+  exit 0
+fi
 rm -f "${RALPH_STATE_FILE}.bak"
+
+# Verify the update succeeded
+UPDATED_ITERATION=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$RALPH_STATE_FILE" | grep '^iteration:' | sed 's/iteration: *//' || true)
+if [[ "$UPDATED_ITERATION" != "$NEXT_ITERATION" ]]; then
+  debug "WARNING: iteration update verification failed (expected $NEXT_ITERATION, got $UPDATED_ITERATION)"
+fi
 debug "State file after update: $(head -6 "$RALPH_STATE_FILE" 2>/dev/null)"
 
 # Build system message with iteration count, completion info, AND methodology enforcement

@@ -1,0 +1,60 @@
+# Changelog
+
+All notable changes to Super-Ralph are documented in this file.
+
+## [1.1.0] - 2025-02-09
+
+### Added
+- **Test suite**: 114 bats tests across 6 test files covering all gate libraries,
+  stop-hook controller, shared utilities, and project auto-detection
+- **Project type auto-detection**: Automatically configures allowed tools based on
+  project files (package.json, Cargo.toml, pyproject.toml, go.mod, Gemfile, etc.)
+- **Shared gate utilities** (`lib/gate_utils.sh`): Extracted common pattern matching
+  and JSON building functions to reduce code duplication
+- **GitHub Actions CI**: Automated testing on macOS and Linux with ShellCheck linting
+- **CONTRIBUTING.md**: Development setup, architecture overview, testing guidelines
+- **CHANGELOG.md**: Version history documentation
+- **Makefile**: Targets for test, lint, install, uninstall, check
+- Pure bash fallback for `<promise>` tag extraction when perl is unavailable
+
+### Fixed
+- **Security**: Command injection in tdd_gate.sh and verification_gate.sh via unsafe
+  `jq` string interpolation — now uses `jq --arg` for safe parameter passing
+- **Octal arithmetic bug**: Rate limit wait calculation failed for minutes 08/09 due
+  to bash octal interpretation — now uses `10#$var` prefix
+- **Datetime fallback**: `get_next_hour_time` third fallback returned current time
+  instead of next hour — now correctly calculates next hour
+- **Install script**: Referenced non-existent SKILL.md and wrong path for
+  ralph-skill-hooks.md — corrected to actual file locations
+- **Task classification**: Added word boundaries (`\b`) to prevent false positives
+  (e.g., "completely" matching COMPLETION, "tissue" matching BUG "issue")
+- **ShellCheck warnings**: Fixed unquoted command substitution, useless echo, read
+  without -r, and declare-and-assign issues across all bash scripts
+- Stop-hook sed exit code now checked; state file update verified after write
+
+### Improved
+- **TDD gate patterns**: Added word boundaries, support for more verb forms (writing,
+  skipping, testing), new violation patterns (without tests, don't need test)
+- **Verification gate patterns**: Support for passed/passing forms, exit code with
+  colon separator, more evidence formats (ran N tests, ok N tests)
+- **Live log efficiency**: Uses `tail -c 50000` instead of full file copy during
+  progress monitoring
+- **Configurable thresholds**: `MAX_CONSECUTIVE_TEST_LOOPS` and
+  `MAX_CONSECUTIVE_DONE_SIGNALS` now configurable via .ralphrc
+- **File locking**: Call counter uses flock for atomic operations with graceful
+  macOS fallback
+- **Setup script**: Generated .ralphrc uses auto-detected tools instead of hardcoded
+  restrictive defaults
+- **Stop-hook diagnostics**: Better debug logging for jq parse failures, sed errors,
+  and promise extraction
+
+## [1.0.0] - 2025-02-08
+
+### Added
+- Initial release combining Ralph autonomous loop with Superpowers methodology
+- 14 sr-prefixed skills covering full development lifecycle
+- Stop-hook for self-referential loop pattern
+- Standalone bash system with rate limiting, circuit breaker, session continuity
+- Dual-mode operation (with/without Ralph installed)
+- 3 Claude Code commands: using-super-ralph, sr-cancel-ralph, sr-help
+- Support for Claude Code, Codex, and OpenCode platforms

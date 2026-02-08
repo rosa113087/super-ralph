@@ -102,6 +102,15 @@ The skill itself tells you which.
 4. **ONE fix at a time:** Never bundle multiple fixes. Test each fix individually.
 5. **Evidence before assertions:** Every success claim requires command output proving it.
 
+## Red Flags
+
+Stop and reassess if you catch yourself:
+- Invoking skills for simple questions, quick fixes, or routine git operations
+- Skipping skill invocation when the task clearly matches a skill's purpose
+- Chaining multiple skills without user awareness (announce each one)
+- Treating skills as optional when they are marked REQUIRED in a workflow
+- Overriding user instructions with skill ceremony
+
 ## User Instructions
 
 When the user gives direct, specific instructions (e.g., "add this function", "fix this bug", "commit this"), execute them directly. Skills complement user instructions; they don't override them or add unnecessary ceremony.

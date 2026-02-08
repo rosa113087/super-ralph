@@ -122,3 +122,18 @@ Agent found new rationalization? Add explicit counter. Re-test until bulletproof
 
 **Deployment:**
 - [ ] Commit skill to git
+
+## Red Flags
+
+Stop and reassess if you catch yourself:
+- Writing skill content before running baseline pressure tests (TDD violation)
+- Creating a skill for a one-off solution or project-specific convention
+- Writing narrative ("I solved this by...") instead of reference guide format
+- Skipping the refactor phase after initial tests pass
+- Not documenting specific rationalizations found during testing
+- Including a `description` that summarizes the skill's process instead of triggering conditions
+
+## Related Skills
+
+- **sr-test-driven-development**: Foundation methodology - skills follow same RED-GREEN-REFACTOR cycle
+- **sr-verification-before-completion**: Verify skill works before deployment

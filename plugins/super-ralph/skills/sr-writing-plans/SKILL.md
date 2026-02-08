@@ -87,12 +87,29 @@ git commit -m "feat: add specific feature"
 \`\`\`
 ```
 
+## Red Flags
+
+Stop and reassess if you catch yourself:
+- Writing vague steps like "add validation" instead of showing exact code
+- Using relative paths or omitting file paths entirely
+- Skipping the "run test to verify it fails" steps (TDD violation)
+- Creating tasks that take longer than 5 minutes (too coarse)
+- Not including expected command output for verification
+- Omitting the plan document header with implementer instructions
+
 ## Remember
 - Exact file paths always
 - Complete code in plan (not "add validation")
 - Exact commands with expected output
 - Reference relevant skills
 - DRY, YAGNI, TDD, frequent commits
+
+## Related Skills
+
+- **sr-brainstorming**: Design exploration before planning
+- **sr-executing-plans**: Execute this plan in a separate session
+- **sr-subagent-driven-development**: Execute tasks via parallel subagents
+- **sr-test-driven-development**: TDD methodology used within each task
 
 ## Execution Handoff
 

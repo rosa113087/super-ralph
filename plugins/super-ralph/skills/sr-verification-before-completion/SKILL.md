@@ -113,3 +113,9 @@ NOT: Trust agent report
 Run the command. Read the output. THEN claim the result.
 
 This is non-negotiable.
+
+## Related Skills
+
+- **sr-test-driven-development**: TDD requires verification at each RED and GREEN step
+- **sr-finishing-a-development-branch**: Verify tests before presenting completion options
+- **sr-requesting-code-review**: Verify work before dispatching for review

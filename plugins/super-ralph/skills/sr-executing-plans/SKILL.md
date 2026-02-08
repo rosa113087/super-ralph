@@ -67,6 +67,16 @@ After all tasks complete and verified:
 
 **Don't force through blockers** - stop and ask.
 
+## Red Flags
+
+Stop and reassess if you catch yourself:
+- Skipping plan review and jumping straight to implementation
+- Implementing more than 3 tasks without checking in for review
+- Guessing when a plan step is unclear instead of asking
+- Skipping verification commands specified in the plan
+- Continuing after a verification failure instead of stopping
+- Working on main/master branch without explicit consent
+
 ## Remember
 - Review plan critically first
 - Follow plan steps exactly

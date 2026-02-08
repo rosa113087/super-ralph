@@ -98,6 +98,21 @@ After agents return:
 3. **Run full suite** - Verify all fixes work together
 4. **Spot check** - Agents can make systematic errors
 
+## Red Flags
+
+Stop and reassess if you catch yourself:
+- Dispatching agents for related failures (fix one might fix others)
+- Giving agents overlapping file scopes (will cause merge conflicts)
+- Skipping the post-integration full test suite run
+- Using vague agent prompts without clear scope and expected output
+- Not reviewing agent summaries before integrating changes
+
+## Related Skills
+
+- **sr-subagent-driven-development**: Execute plan tasks via subagents with review
+- **sr-systematic-debugging**: Use first to identify if failures are independent
+- **sr-verification-before-completion**: Verify after integrating all agent work
+
 ## Key Benefits
 
 1. **Parallelization** - Multiple investigations happen simultaneously

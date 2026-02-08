@@ -129,6 +129,21 @@ When feedback IS correct:
 | Avoiding pushback | Technical correctness > comfort |
 | Partial implementation | Clarify all items first |
 
+## Red Flags
+
+Stop and reassess if you catch yourself:
+- Saying "Great point!" or "You're absolutely right!" (performative agreement)
+- Implementing suggestions without verifying against the codebase first
+- Implementing all feedback items at once instead of one at a time
+- Avoiding pushback on technically incorrect suggestions
+- Not running tests after each individual change
+
+## Related Skills
+
+- **sr-requesting-code-review**: Dispatching code for review
+- **sr-verification-before-completion**: Verify all changes after implementation
+- **sr-test-driven-development**: TDD methodology for implementing fixes
+
 ## The Bottom Line
 
 **External feedback = suggestions to evaluate, not orders to follow.**

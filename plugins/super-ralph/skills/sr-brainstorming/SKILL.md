@@ -43,6 +43,16 @@ Start by understanding the current project context, then ask questions one at a 
 - Use sr-using-git-worktrees skill to create isolated workspace
 - Use sr-writing-plans skill to create detailed implementation plan
 
+## Red Flags
+
+Stop and reassess if you catch yourself:
+- Jumping to implementation without understanding requirements
+- Presenting only one approach without alternatives
+- Writing design sections longer than 300 words without checking in
+- Adding features the user didn't ask for (YAGNI violation)
+- Skipping the design document commit step
+- Moving to implementation without user sign-off on design
+
 ## Key Principles
 
 - **One question at a time** - Don't overwhelm with multiple questions
@@ -51,3 +61,9 @@ Start by understanding the current project context, then ask questions one at a 
 - **Explore alternatives** - Always propose 2-3 approaches before settling
 - **Incremental validation** - Present design in sections, validate each
 - **Be flexible** - Go back and clarify when something doesn't make sense
+
+## Related Skills
+
+- **sr-writing-plans**: Create implementation plan from your design
+- **sr-using-git-worktrees**: Set up isolated workspace for implementation
+- **sr-test-driven-development**: Implement design using TDD
