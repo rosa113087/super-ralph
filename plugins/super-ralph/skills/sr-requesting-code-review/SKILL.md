@@ -1,6 +1,6 @@
 ---
 name: sr-requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+description: Use when the user explicitly requests a code review, or during subagent-driven development where review is part of the workflow
 ---
 
 # Requesting Code Review

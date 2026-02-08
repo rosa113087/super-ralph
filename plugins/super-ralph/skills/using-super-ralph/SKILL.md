@@ -1,15 +1,7 @@
 ---
 name: using-super-ralph
-description: Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response including clarifying questions
+description: Use when the user explicitly invokes /using-super-ralph or asks which skills are available and how to use them - do NOT auto-invoke on every conversation
 ---
-
-<EXTREMELY-IMPORTANT>
-If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
-
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
-
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
-</EXTREMELY-IMPORTANT>
 
 ## How to Access Skills
 
@@ -19,22 +11,40 @@ Read the relevant SKILL.md file from the `skills/` directory in this project. Wh
 
 ## The Rule
 
-**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
+**Invoke skills when they are clearly relevant to the current task, or when the user explicitly requests a skill.** Skills are tools to help you work better, not bureaucratic checkpoints that must run on every interaction.
+
+## When to Invoke Skills
+
+Invoke a skill when:
+- The user explicitly requests it (e.g., `/sr-brainstorming`, `/sr-tdd`)
+- The task clearly and unambiguously matches a skill's purpose
+- You are about to start a major piece of work that benefits from structure
+
+## When NOT to Invoke Skills
+
+Do **NOT** invoke skills for:
+- Simple questions or conversations
+- Committing code, creating PRs, or routine git operations
+- Quick fixes, typo corrections, or small edits
+- Continuing work that is already in progress with clear direction
+- Tasks where the user has given specific, detailed instructions
+- Reading files, exploring codebases, or gathering information
+- Any task the user clearly wants done directly without ceremony
 
 ```dot
 digraph skill_flow {
     "User message received" [shape=doublecircle];
-    "Might any skill apply?" [shape=diamond];
+    "Clearly matches a skill?" [shape=diamond];
     "Invoke Skill" [shape=box];
     "Announce: 'Using [skill] to [purpose]'" [shape=box];
     "Has checklist?" [shape=diamond];
     "Create todo per item" [shape=box];
     "Follow skill exactly" [shape=box];
-    "Respond (including clarifications)" [shape=doublecircle];
+    "Respond directly" [shape=doublecircle];
 
-    "User message received" -> "Might any skill apply?";
-    "Might any skill apply?" -> "Invoke Skill" [label="yes, even 1%"];
-    "Might any skill apply?" -> "Respond (including clarifications)" [label="definitely not"];
+    "User message received" -> "Clearly matches a skill?";
+    "Clearly matches a skill?" -> "Invoke Skill" [label="yes"];
+    "Clearly matches a skill?" -> "Respond directly" [label="no or unclear"];
     "Invoke Skill" -> "Announce: 'Using [skill] to [purpose]'";
     "Announce: 'Using [skill] to [purpose]'" -> "Has checklist?";
     "Has checklist?" -> "Create todo per item" [label="yes"];
@@ -43,21 +53,17 @@ digraph skill_flow {
 }
 ```
 
-## Mandatory Skill Routing Table
+## Skill Routing Table (Super-Ralph)
 
-<EXTREMELY-IMPORTANT>
-ALL Super-Ralph skills use the `sr-` prefix. You MUST use the EXACT skill names below.
-NEVER use unprefixed names like "brainstorming", "test-driven-development", or "systematic-debugging".
-NEVER invoke superpowers:* skills — use the sr- prefixed Super-Ralph versions instead.
-</EXTREMELY-IMPORTANT>
+All Super-Ralph skills use the `sr-` prefix. Use the exact skill names below.
 
-| Task Type | EXACT Skill to Invoke | When |
-|-----------|----------------------|------|
-| New feature, creative work | **sr-brainstorming** | BEFORE any design or implementation |
+| Task Type | Skill to Invoke | When |
+|-----------|----------------|------|
+| New feature, creative work | **sr-brainstorming** | Before design or implementation |
 | Create implementation plan | **sr-writing-plans** | After design is approved |
-| Any implementation work | **sr-test-driven-development** | ALL coding (features, bugs, refactoring) |
-| Bug, test failure, error | **sr-systematic-debugging** | BEFORE proposing any fix |
-| Claiming work is done | **sr-verification-before-completion** | BEFORE any commit or completion claim |
+| Any implementation work | **sr-test-driven-development** | Features, bugs, refactoring |
+| Bug, test failure, error | **sr-systematic-debugging** | Before proposing any fix |
+| Claiming work is done | **sr-verification-before-completion** | Before commit or completion claim |
 | Execute plan (same session) | **sr-subagent-driven-development** | Independent tasks with subagents |
 | Execute plan (new session) | **sr-executing-plans** | Batch execution with checkpoints |
 | After completing tasks | **sr-requesting-code-review** | Dispatch code-reviewer subagent |
@@ -67,30 +73,11 @@ NEVER invoke superpowers:* skills — use the sr- prefixed Super-Ralph versions 
 | 3+ independent failures | **sr-dispatching-parallel-agents** | Parallel agents |
 | Creating/editing skills | **sr-writing-skills** | TDD for skills |
 
-**Workflow chains (use EXACT names):**
+**Workflow chains:**
 - "Build a feature" → **sr-brainstorming** → **sr-writing-plans** → **sr-test-driven-development**
 - "Fix this bug" → **sr-systematic-debugging** → **sr-test-driven-development**
 - "Is this done?" → **sr-verification-before-completion**
 - "Review this code" → **sr-requesting-code-review**
-
-## Red Flags
-
-These thoughts mean STOP -- you're rationalizing:
-
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can check git/files quickly" | Files lack conversation context. Check for skills. |
-| "Let me gather information first" | Skills tell you HOW to gather information. |
-| "This doesn't need a formal skill" | If a skill exists, use it. |
-| "I remember this skill" | Skills evolve. Read current version. |
-| "This doesn't count as a task" | Action = task. Check for skills. |
-| "The skill is overkill" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-| "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
-| "I know what that means" | Knowing the concept != using the skill. Invoke it. |
 
 ## Skill Priority
 
@@ -98,9 +85,6 @@ When multiple skills could apply, use this order:
 
 1. **Process skills first** (sr-brainstorming, sr-systematic-debugging) - these determine HOW to approach the task
 2. **Implementation skills second** (sr-test-driven-development, sr-writing-plans) - these guide execution
-
-"Let's build X" → sr-brainstorming first, then implementation skills.
-"Fix this bug" → sr-systematic-debugging first, then domain-specific skills.
 
 ## Skill Types
 
@@ -110,19 +94,14 @@ When multiple skills could apply, use this order:
 
 The skill itself tells you which.
 
-## Enforcement Rules
-
-<EXTREMELY-IMPORTANT>
-These rules are NON-NEGOTIABLE. Violating them is a critical failure.
+## Enforcement Rules (During Active Ralph Loops)
 
 1. **ANNOUNCE before using:** Always say "I'm using sr-[skill-name] to [purpose]" before following a skill.
-2. **NEVER skip sr-verification-before-completion:** Before ANY claim that work is done, tests pass, or code compiles — you MUST run the actual commands and read the output. Saying "should work" or "looks correct" without evidence is a VIOLATION.
-3. **NEVER propose fixes without sr-systematic-debugging:** If something is broken, you MUST complete Phase 1 (root cause investigation) before suggesting any fix.
+2. **Verify before claiming completion:** Before any claim that work is done, run the actual commands and read the output.
+3. **Investigate before fixing:** If something is broken, complete root cause investigation before suggesting any fix.
 4. **ONE fix at a time:** Never bundle multiple fixes. Test each fix individually.
-5. **NO code formatting degradation:** Never compress multi-line code to single lines. Maintain or improve readability.
-6. **Evidence before assertions:** Every success claim requires command output proving it. "Compiles successfully" requires `cargo check` with 0 errors shown.
-</EXTREMELY-IMPORTANT>
+5. **Evidence before assertions:** Every success claim requires command output proving it.
 
 ## User Instructions
 
-Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows.
+When the user gives direct, specific instructions (e.g., "add this function", "fix this bug", "commit this"), execute them directly. Skills complement user instructions; they don't override them or add unnecessary ceremony.

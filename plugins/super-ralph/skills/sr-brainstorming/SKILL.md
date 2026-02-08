@@ -1,6 +1,6 @@
 ---
 name: sr-brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: "Use when the user explicitly requests brainstorming, design exploration, or when starting a greenfield project that requires architectural decisions - not for routine feature additions or directed tasks"
 ---
 
 # Brainstorming Ideas Into Designs

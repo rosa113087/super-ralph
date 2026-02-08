@@ -1,6 +1,6 @@
 ---
 name: sr-test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: Use when the user explicitly requests TDD workflow, or during a Ralph loop where TDD methodology is the selected workflow - not for routine coding tasks
 ---
 
 # Test-Driven Development (TDD)
