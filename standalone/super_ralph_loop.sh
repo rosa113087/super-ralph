@@ -86,7 +86,10 @@ TIMESTAMP_FILE="$SUPER_RALPH_DIR/.last_reset"
 EXIT_SIGNALS_FILE="$SUPER_RALPH_DIR/.exit_signals"
 RESPONSE_ANALYSIS_FILE="$SUPER_RALPH_DIR/.response_analysis"
 METHODOLOGY_FILE="$SUPER_RALPH_DIR/.methodology_state"
+# Used by lib/session_manager.sh (sourced below)
+# shellcheck disable=SC2034
 CLAUDE_SESSION_FILE="$SUPER_RALPH_DIR/.claude_session_id"
+# shellcheck disable=SC2034
 RALPH_SESSION_FILE="$SUPER_RALPH_DIR/.ralph_session"
 LIVE_LOG_FILE="$SUPER_RALPH_DIR/live.log"
 RALPHRC_FILE=".ralphrc"
@@ -402,6 +405,8 @@ increment_call_counter() {
 
     # Use flock if available for atomic read-increment-write
     if command -v flock &>/dev/null; then
+        # Intentional: outer variable is spliced into inner single-quoted script
+        # shellcheck disable=SC2016
         calls_made=$(
             flock -w 5 "$lock_file" bash -c '
                 count=0
