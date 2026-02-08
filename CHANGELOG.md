@@ -2,6 +2,26 @@
 
 All notable changes to Super-Ralph are documented in this file.
 
+## [1.2.0] - 2026-02-09
+
+### Added
+- **Session Manager library**: Extracted 6 session functions (~100 lines) from
+  super_ralph_loop.sh to standalone/lib/session_manager.sh for modularity
+- **TMUX Utils library**: Extracted tmux monitoring functions (~55 lines) to
+  standalone/lib/tmux_utils.sh
+- **`make release` target**: Automated version bumping across marketplace.json,
+  plugin.json, and super_ralph_loop.sh --version flag
+- **Session manager tests**: 16 new bats tests covering session persistence,
+  expiry, save/restore, and reset
+- **TMUX utils tests**: 3 new bats tests covering tmux availability checks
+
+### Improved
+- **Main loop reduced**: super_ralph_loop.sh down from 1411 to 1257 lines
+  through library extraction
+- **Stop-hook systemMessage**: Condensed methodology context from 25 lines to 8
+  lines while preserving all enforcement rules and skill routing
+- **Install.sh**: Now copies session_manager.sh and tmux_utils.sh during install
+
 ## [1.1.1] - 2026-02-09
 
 ### Added

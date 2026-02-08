@@ -472,110 +472,10 @@ STATUSEOF
 }
 
 # =============================================================================
-# SESSION MANAGEMENT
+# SESSION MANAGEMENT (extracted to lib/session_manager.sh)
 # =============================================================================
 
-get_session_file_age_hours() {
-    local file=$1
-    [[ ! -f "$file" ]] && echo "0" && return
-
-    local file_mtime
-    if file_mtime=$(stat -c %Y "$file" 2>/dev/null) && [[ -n "$file_mtime" && "$file_mtime" =~ ^[0-9]+$ ]]; then
-        : # GNU stat
-    elif file_mtime=$(stat -f %m "$file" 2>/dev/null) && [[ -n "$file_mtime" && "$file_mtime" =~ ^[0-9]+$ ]]; then
-        : # BSD stat
-    elif file_mtime=$(date -r "$file" +%s 2>/dev/null) && [[ -n "$file_mtime" && "$file_mtime" =~ ^[0-9]+$ ]]; then
-        : # date -r fallback
-    else
-        file_mtime=""
-    fi
-
-    if [[ -z "$file_mtime" || "$file_mtime" == "0" ]]; then
-        echo "-1"
-        return
-    fi
-
-    local current_time
-    current_time=$(date +%s)
-    local age_hours=$(((current_time - file_mtime) / 3600))
-    echo "$age_hours"
-}
-
-init_claude_session() {
-    if [[ -f "$CLAUDE_SESSION_FILE" ]]; then
-        local age_hours
-        age_hours=$(get_session_file_age_hours "$CLAUDE_SESSION_FILE")
-
-        if [[ $age_hours -eq -1 ]]; then
-            log_status "WARN" "Could not determine session age, starting new session"
-            rm -f "$CLAUDE_SESSION_FILE"
-            echo ""
-            return 0
-        fi
-
-        if [[ $age_hours -ge $CLAUDE_SESSION_EXPIRY_HOURS ]]; then
-            log_status "INFO" "Session expired (${age_hours}h old, max ${CLAUDE_SESSION_EXPIRY_HOURS}h), starting new session"
-            rm -f "$CLAUDE_SESSION_FILE"
-            echo ""
-            return 0
-        fi
-
-        local session_id
-        session_id=$(cat "$CLAUDE_SESSION_FILE" 2>/dev/null)
-        if [[ -n "$session_id" ]]; then
-            log_status "INFO" "Resuming Claude session: ${session_id:0:20}... (${age_hours}h old)"
-            echo "$session_id"
-            return 0
-        fi
-    fi
-
-    log_status "INFO" "Starting new Claude session"
-    echo ""
-}
-
-save_claude_session() {
-    local output_file=$1
-    if [[ -f "$output_file" ]]; then
-        local session_id
-        session_id=$(jq -r '.metadata.session_id // .session_id // empty' "$output_file" 2>/dev/null)
-        if [[ -n "$session_id" && "$session_id" != "null" ]]; then
-            echo "$session_id" > "$CLAUDE_SESSION_FILE"
-            log_status "INFO" "Saved Claude session: ${session_id:0:20}..."
-        fi
-    fi
-}
-
-init_session_tracking() {
-    if [[ ! -f "$RALPH_SESSION_FILE" ]]; then
-        jq -n \
-            --arg session_id "" \
-            --arg created_at "$(get_iso_timestamp)" \
-            --arg last_used "$(get_iso_timestamp)" \
-            '{session_id: $session_id, created_at: $created_at, last_used: $last_used}' \
-            > "$RALPH_SESSION_FILE"
-    fi
-}
-
-update_session_last_used() {
-    if [[ -f "$RALPH_SESSION_FILE" ]]; then
-        local tmp
-        tmp=$(jq --arg ts "$(get_iso_timestamp)" '.last_used = $ts' "$RALPH_SESSION_FILE" 2>/dev/null)
-        if [[ -n "$tmp" ]]; then
-            echo "$tmp" > "$RALPH_SESSION_FILE"
-        fi
-    fi
-}
-
-reset_session() {
-    local reason=${1:-"manual_reset"}
-    jq -n \
-        --arg reset_at "$(get_iso_timestamp)" \
-        --arg reset_reason "$reason" \
-        '{session_id: "", created_at: "", last_used: "", reset_at: $reset_at, reset_reason: $reset_reason}' \
-        > "$RALPH_SESSION_FILE"
-    rm -f "$CLAUDE_SESSION_FILE"
-    log_status "INFO" "Session reset: $reason"
-}
+source "$SCRIPT_DIR/lib/session_manager.sh"
 
 # =============================================================================
 # BUILD CLAUDE COMMAND
@@ -1054,64 +954,10 @@ should_exit_gracefully() {
 }
 
 # =============================================================================
-# TMUX MONITORING
+# TMUX MONITORING (extracted to lib/tmux_utils.sh)
 # =============================================================================
 
-check_tmux_available() {
-    if ! command -v tmux &>/dev/null; then
-        log_status "ERROR" "tmux is not installed."
-        echo "Install tmux: brew install tmux (macOS) or sudo apt-get install tmux (Linux)"
-        exit 1
-    fi
-}
-
-setup_tmux_session() {
-    local session_name
-    session_name="super-ralph-$(date +%s)"
-    local project_dir
-    project_dir=$(pwd)
-    local base_win
-    base_win=$(tmux show-options -gv base-index 2>/dev/null)
-    base_win="${base_win:-0}"
-
-    log_status "INFO" "Setting up tmux session: $session_name"
-    echo "=== Super-Ralph Live Output - Waiting for first loop... ===" > "$LIVE_LOG_FILE"
-
-    tmux new-session -d -s "$session_name" -c "$project_dir"
-    tmux split-window -h -t "$session_name" -c "$project_dir"
-    tmux split-window -v -t "$session_name:${base_win}.1" -c "$project_dir"
-
-    # Right-top: live Claude output
-    tmux send-keys -t "$session_name:${base_win}.1" "tail -f '$project_dir/$LIVE_LOG_FILE'" Enter
-    # Right-bottom: status monitor
-    tmux send-keys -t "$session_name:${base_win}.2" "watch -n 5 'cat $project_dir/$STATUS_FILE 2>/dev/null | jq . 2>/dev/null || echo No status yet'" Enter
-
-    # Left: super-ralph loop (forward relevant args, always use --live in tmux)
-    local sr_cmd="'$SCRIPT_DIR/super_ralph_loop.sh' --live"
-    [[ "$MAX_CALLS_PER_HOUR" != "100" ]] && sr_cmd="$sr_cmd --calls $MAX_CALLS_PER_HOUR"
-    [[ "$PROMPT_FILE" != "$SUPER_RALPH_DIR/PROMPT.md" ]] && sr_cmd="$sr_cmd --prompt '$PROMPT_FILE'"
-    [[ "$CLAUDE_OUTPUT_FORMAT" != "json" ]] && sr_cmd="$sr_cmd --output-format $CLAUDE_OUTPUT_FORMAT"
-    [[ "$VERBOSE_PROGRESS" == "true" ]] && sr_cmd="$sr_cmd --verbose"
-    [[ "$CLAUDE_TIMEOUT_MINUTES" != "15" ]] && sr_cmd="$sr_cmd --timeout $CLAUDE_TIMEOUT_MINUTES"
-    [[ "$CLAUDE_USE_CONTINUE" == "false" ]] && sr_cmd="$sr_cmd --no-continue"
-    [[ "$CLAUDE_SESSION_EXPIRY_HOURS" != "24" ]] && sr_cmd="$sr_cmd --session-expiry $CLAUDE_SESSION_EXPIRY_HOURS"
-
-    tmux send-keys -t "$session_name:${base_win}.0" "$sr_cmd" Enter
-    tmux select-pane -t "$session_name:${base_win}.0"
-    tmux select-pane -t "$session_name:${base_win}.0" -T "Super-Ralph Loop"
-    tmux select-pane -t "$session_name:${base_win}.1" -T "Claude Output"
-    tmux select-pane -t "$session_name:${base_win}.2" -T "Status"
-    tmux rename-window -t "$session_name:${base_win}" "Super-Ralph: Loop | Output | Status"
-
-    log_status "SUCCESS" "Tmux session created with 3 panes:"
-    log_status "INFO" "  Left:         Super-Ralph loop"
-    log_status "INFO" "  Right-top:    Claude Code live output"
-    log_status "INFO" "  Right-bottom: Status monitor"
-    log_status "INFO" "Use Ctrl+B then D to detach, 'tmux attach -t $session_name' to reattach"
-
-    tmux attach-session -t "$session_name"
-    exit 0
-}
+source "$SCRIPT_DIR/lib/tmux_utils.sh"
 
 # =============================================================================
 # SIGNAL HANDLING
@@ -1324,7 +1170,7 @@ HELPEOF
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help) show_help; exit 0 ;;
-        --version) echo "super-ralph 1.1.1"; exit 0 ;;
+        --version) echo "super-ralph 1.2.0"; exit 0 ;;
         -c|--calls) MAX_CALLS_PER_HOUR="$2"; shift 2 ;;
         -p|--prompt) PROMPT_FILE="$2"; shift 2 ;;
         -v|--verbose) VERBOSE_PROGRESS=true; shift ;;

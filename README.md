@@ -124,6 +124,8 @@ The bash system replicates and extends Ralph's autonomous loop infrastructure:
 | **Skill Selector** | `standalone/lib/skill_selector.sh` | Classifies tasks from `fix_plan.md` into types (FEATURE, BUG, PLAN_TASK, REVIEW, COMPLETION) and maps each type to the appropriate Super-Ralph skill workflow chain. For example, a FEATURE triggers brainstorming -> writing-plans -> TDD, while a BUG triggers systematic-debugging -> TDD. Provides functions: `classify_task()`, `get_skill_workflow()`, `get_current_task()`, `has_design_doc()`, `has_implementation_plan()`, `all_tasks_complete()`, `count_remaining_tasks()`. |
 | **TDD Gate** | `standalone/lib/tdd_gate.sh` | Analyzes Claude's output for TDD compliance. Pattern-matches against RED indicators (test written, test fails, failing test), GREEN indicators (test passes, all tests pass, tests green), and VIOLATION indicators (skip test, implement first, test later, no test needed). Produces a JSON compliance report with pass/fail status. Functions: `check_tdd_compliance()`, `analyze_tdd_status()`, `log_tdd_summary()`, `get_tdd_enforcement_context()`. |
 | **Verification Gate** | `standalone/lib/verification_gate.sh` | Detects unverified completion claims vs evidence-based claims. Matches UNVERIFIED patterns ("should pass", "looks correct", "probably works", "seems to") against VERIFIED patterns ("34/34 pass", "exit code 0", "0 failures", "all tests pass"). Blocks exit signals that lack verification evidence. Functions: `check_verification()`, `analyze_verification_status()`, `log_verification_summary()`, `validate_exit_signal()`. |
+| **Session Manager** | `standalone/lib/session_manager.sh` | Manages Claude session persistence with expiry tracking. Handles cross-platform file age detection (GNU/BSD stat), session initialization, save/restore, and reset. Functions: `get_session_file_age_hours()`, `init_claude_session()`, `save_claude_session()`, `init_session_tracking()`, `update_session_last_used()`, `reset_session()`. |
+| **TMUX Utils** | `standalone/lib/tmux_utils.sh` | Sets up multi-pane tmux monitoring sessions with live output, status display, and the main loop running side-by-side. Functions: `check_tmux_available()`, `setup_tmux_session()`. |
 | **Installer** | `standalone/install.sh` | Installs `super-ralph` and `super-ralph-setup` commands globally to `~/.local/bin`. Copies libraries to `~/.super-ralph/`. Includes embedded `super-ralph-setup` script for project scaffolding (creates `.ralph/` directory structure with PROMPT.md, specs/, fix_plan.md). Supports `./install.sh uninstall` for clean removal. |
 | **Enhanced Prompt** | `standalone/super-ralph-prompt.md` | Drop-in replacement for Ralph's `.ralph/PROMPT.md`. Contains the full Super-Ralph methodology embedded as prompt context: task classification table, TDD workflow (RED-VERIFY-GREEN-VERIFY-REFACTOR-COMMIT), systematic debugging 4-phase process, verification enforcement, and skill selection logic. This is what Claude reads on every loop iteration. |
 
@@ -395,7 +397,7 @@ Layer 1: INFRASTRUCTURE (Ralph Loop)
 
 ## Development & Testing
 
-Super-Ralph includes a comprehensive test suite with **130 bats tests** covering all gate libraries, the stop-hook controller, and shared utilities.
+Super-Ralph includes a comprehensive test suite with **149 bats tests** covering all gate libraries, the stop-hook controller, session management, and shared utilities.
 
 ```bash
 # Install bats (macOS)
@@ -411,6 +413,8 @@ bats tests/
 # tests/test_tdd_gate.bats       - TDD compliance enforcement
 # tests/test_verification_gate.bats - Completion claim validator
 # tests/test_stop_hook.bats      - Loop controller behavior
+# tests/test_session_manager.bats - Session persistence & expiry
+# tests/test_tmux_utils.bats     - TMUX monitoring utilities
 ```
 
 Key engineering features:

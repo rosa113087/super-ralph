@@ -234,29 +234,15 @@ debug "State file after update: $(head -6 "$RALPH_STATE_FILE" 2>/dev/null)"
 # Super-Ralph skill enforcement that was present in the original /using-super-ralph command.
 METHODOLOGY_CONTEXT="
 
-You are running Super-Ralph. This is iteration $NEXT_ITERATION of an autonomous loop.
+Super-Ralph iteration $NEXT_ITERATION. FIRST: invoke /using-super-ralph to reload methodology.
 
-FIRST ACTION REQUIRED: Invoke the skill 'using-super-ralph' to reload the full Super-Ralph methodology before doing ANY other work. This is non-negotiable — it loads the complete enforcement rules, red flags table, and skill routing that you need.
+SKILL ROUTING (use sr- prefix only, never superpowers:*):
+feature→sr-brainstorming | plan→sr-writing-plans | code→sr-test-driven-development
+bug→sr-systematic-debugging | done→sr-verification-before-completion
+parallel→sr-subagent-driven-development | review→sr-requesting-code-review
+all-complete→sr-finishing-a-development-branch
 
-After loading the methodology, use sr- prefixed skills for ALL work — no exceptions.
-
-MANDATORY SKILL ROUTING:
-- New feature/creative work → invoke sr-brainstorming FIRST
-- Create implementation plan → invoke sr-writing-plans
-- ANY implementation/coding → invoke sr-test-driven-development (RED-GREEN-REFACTOR)
-- Bug/error/test failure → invoke sr-systematic-debugging BEFORE proposing any fix
-- Before claiming done/committing → invoke sr-verification-before-completion
-- Independent tasks → invoke sr-subagent-driven-development
-- Code review → invoke sr-requesting-code-review
-- All tasks complete → invoke sr-finishing-a-development-branch
-
-ENFORCEMENT:
-1. ANNOUNCE before using any skill: \"I'm using sr-[name] to [purpose]\"
-2. NEVER claim success without running commands and reading output
-3. NEVER propose fixes without root cause investigation
-4. ONE fix at a time — test each individually
-5. Evidence before assertions — every claim needs command output proof
-6. NEVER invoke superpowers:* skills — use sr- prefixed Super-Ralph versions instead"
+RULES: Announce skills before use. Evidence before assertions. One fix at a time. Never claim success without command output proof."
 
 if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
   SYSTEM_MSG="🔄 Super-Ralph iteration $NEXT_ITERATION | To stop: output <promise>$COMPLETION_PROMISE</promise> (ONLY when statement is TRUE - do not lie to exit!)${METHODOLOGY_CONTEXT}"

@@ -102,6 +102,8 @@ install_super_ralph() {
     cp "$SCRIPT_DIR/lib/tdd_gate.sh" "$SUPER_RALPH_HOME/lib/"
     cp "$SCRIPT_DIR/lib/verification_gate.sh" "$SUPER_RALPH_HOME/lib/"
     cp "$SCRIPT_DIR/lib/gate_utils.sh" "$SUPER_RALPH_HOME/lib/"
+    cp "$SCRIPT_DIR/lib/session_manager.sh" "$SUPER_RALPH_HOME/lib/"
+    cp "$SCRIPT_DIR/lib/tmux_utils.sh" "$SUPER_RALPH_HOME/lib/"
     chmod +x "$SUPER_RALPH_HOME/lib/"*.sh
 
     # Copy templates
