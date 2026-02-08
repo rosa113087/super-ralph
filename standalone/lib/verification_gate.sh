@@ -13,28 +13,33 @@ NC='\033[0m'
 
 # Patterns that indicate unverified completion claims
 UNVERIFIED_CLAIM_PATTERNS=(
-    "should pass"
-    "should work"
+    "should (now )?pass"
+    "should (now )?work"
     "probably works"
     "looks correct"
-    "seems to work"
+    "seems to (be )?(work|correct|fixed|done)"
     "i think it.s (done|complete|fixed|working)"
-    "i.m confident"
+    "i.m (fairly |pretty |quite )?confident"
     "just this once"
     "linter passed.*build"
-    "tests should"
+    "tests? should"
+    "i believe (it|this|the).*(work|pass|correct)"
+    "that should (do|fix|resolve|handle)"
 )
 
 # Patterns that indicate verified completion claims (evidence-based)
 VERIFIED_CLAIM_PATTERNS=(
-    "[0-9]+ (tests? )?pass"
-    "exit code.*0"
+    "[0-9]+ (tests? )?(pass|passed|passing)"
+    "exit code[: ]*0"
     "0 (failures|errors|failed)"
-    "all [0-9]+ tests pass"
-    "build.*success"
-    "build.*exit 0"
-    "linter.*0 errors"
-    "tests.*pass.*[0-9]+"
+    "all [0-9]+ tests? (pass|passed|passing)"
+    "build.*success(ful|fully)?"
+    "build.*(exit[: ]*0|succeeded)"
+    "linter.*0 (errors|warnings|issues)"
+    "tests?.*(pass|passed|passing).*[0-9]+"
+    "[0-9]+ (of [0-9]+ )?(tests? )?(pass|passed|passing)"
+    "\\bok\\b.*[0-9]+ tests?"
+    "ran [0-9]+ tests?"
 )
 
 # Check if completion claims are backed by verification evidence
@@ -95,7 +100,7 @@ analyze_verification_status() {
             unverified_claims=$((unverified_claims + 1))
             local match
             match=$(echo "$output_lower" | grep -oE "$pattern" | head -1)
-            claim_details=$(echo "$claim_details" | jq ". += [\"$match\"]" 2>/dev/null || echo "$claim_details")
+            claim_details=$(echo "$claim_details" | jq --arg m "$match" '. += [$m]' 2>/dev/null || echo "$claim_details")
         fi
     done
 

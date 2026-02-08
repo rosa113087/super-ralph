@@ -14,29 +14,32 @@ NC='\033[0m'
 
 # TDD compliance patterns
 TDD_RED_PATTERNS=(
-    "write.*failing.*test"
-    "write.*test.*first"
-    "RED.*phase"
-    "test.*fail"
-    "expected.*fail"
-    "watch.*fail"
+    "writ(e|ing).*failing.*test"
+    "writ(e|ing).*test.*first"
+    "\\bRED\\b.*phase"
+    "\\btest(s)?\\b.*(should |must |will )?fail"
+    "expected.*to fail"
+    "watch.*(it |the test )?fail"
+    "expect(ed)? (it |the test )?to fail"
 )
 
 TDD_GREEN_PATTERNS=(
-    "GREEN.*phase"
-    "minimal.*code.*pass"
-    "make.*test.*pass"
-    "test.*pass"
-    "all.*tests.*pass"
+    "\\bGREEN\\b.*phase"
+    "minimal.*code.*(to )?pass"
+    "make.*test(s)?.*pass"
+    "\\btest(s)?\\b.*(now )?(pass|passing|passed)"
+    "all.*tests?.*(pass|passing|passed|green)"
 )
 
 TDD_VIOLATION_PATTERNS=(
     "implement.*first.*then.*test"
-    "skip.*test"
-    "test.*later"
-    "manual.*test.*only"
-    "no.*test.*needed"
-    "too.*simple.*test"
+    "skip(ping)?.*test"
+    "test(ing)?.*later"
+    "manual(ly)?.*test.*only"
+    "no.*test(s|ing)?.*needed"
+    "too.*simple.*(to |for ).*test"
+    "don.t need.*(a |any )?test"
+    "without.*(writing )?tests?"
 )
 
 # Check if Claude's output shows TDD compliance
@@ -110,7 +113,7 @@ analyze_tdd_status() {
             violations=$((violations + 1))
             local match
             match=$(echo "$output_lower" | grep -oE "$pattern" | head -1)
-            violation_details=$(echo "$violation_details" | jq ". += [\"$match\"]" 2>/dev/null || echo "$violation_details")
+            violation_details=$(echo "$violation_details" | jq --arg m "$match" '. += [$m]' 2>/dev/null || echo "$violation_details")
         fi
     done
 

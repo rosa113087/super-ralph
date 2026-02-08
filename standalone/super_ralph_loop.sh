@@ -45,7 +45,13 @@ if ! type get_iso_timestamp &>/dev/null 2>&1; then
     }
     get_epoch_seconds() { date +%s; }
     get_next_hour_time() {
-        date -v+1H '+%H:%M:%S' 2>/dev/null || date -d '+1 hour' '+%H:%M:%S' 2>/dev/null || date '+%H:%M:%S'
+        date -v+1H '+%H:%M:%S' 2>/dev/null || date -d '+1 hour' '+%H:%M:%S' 2>/dev/null || {
+            # Fallback: manually calculate next hour when neither BSD nor GNU date is available
+            local current_hour
+            current_hour=$(date '+%H')
+            local next_hour=$(( (10#$current_hour + 1) % 24 ))
+            printf '%02d:00:00' "$next_hour"
+        }
     }
     export -f get_iso_timestamp get_epoch_seconds get_next_hour_time
 fi
@@ -97,7 +103,7 @@ _env_VERBOSE_PROGRESS="${VERBOSE_PROGRESS:-}"
 MAX_CALLS_PER_HOUR="${MAX_CALLS_PER_HOUR:-100}"
 CLAUDE_TIMEOUT_MINUTES="${CLAUDE_TIMEOUT_MINUTES:-15}"
 CLAUDE_OUTPUT_FORMAT="${CLAUDE_OUTPUT_FORMAT:-json}"
-CLAUDE_ALLOWED_TOOLS="${CLAUDE_ALLOWED_TOOLS:-Write,Read,Edit,Bash(git *),Bash(npm *),Bash(pytest),Bash(bats *)}"
+CLAUDE_ALLOWED_TOOLS="${CLAUDE_ALLOWED_TOOLS:-__AUTO_DETECT__}"
 CLAUDE_USE_CONTINUE="${CLAUDE_USE_CONTINUE:-true}"
 CLAUDE_SESSION_EXPIRY_HOURS="${CLAUDE_SESSION_EXPIRY_HOURS:-24}"
 CLAUDE_CODE_CMD="claude"
@@ -220,6 +226,86 @@ validate_allowed_tools() {
 }
 
 # =============================================================================
+# PROJECT TYPE AUTO-DETECTION
+# =============================================================================
+
+detect_project_tools() {
+    local base_tools="Write,Read,Edit,Bash(git *)"
+    local detected_tools=""
+
+    # Node.js / JavaScript / TypeScript
+    if [[ -f "package.json" ]]; then
+        detected_tools+=",Bash(npm *),Bash(npx *),Bash(node *)"
+        if [[ -f "yarn.lock" ]]; then
+            detected_tools+=",Bash(yarn *)"
+        fi
+        if [[ -f "pnpm-lock.yaml" ]]; then
+            detected_tools+=",Bash(pnpm *)"
+        fi
+        if [[ -f "bun.lockb" ]] || [[ -f "bunfig.toml" ]]; then
+            detected_tools+=",Bash(bun *)"
+        fi
+    fi
+
+    # Python
+    if [[ -f "pyproject.toml" ]] || [[ -f "setup.py" ]] || [[ -f "setup.cfg" ]] || [[ -f "Pipfile" ]] || [[ -f "requirements.txt" ]]; then
+        detected_tools+=",Bash(python *),Bash(python3 *),Bash(pip *),Bash(pytest *)"
+        if [[ -f "Pipfile" ]]; then
+            detected_tools+=",Bash(pipenv *)"
+        fi
+        if [[ -f "poetry.lock" ]] || grep -q '\[tool.poetry\]' pyproject.toml 2>/dev/null; then
+            detected_tools+=",Bash(poetry *)"
+        fi
+        if [[ -f "uv.lock" ]]; then
+            detected_tools+=",Bash(uv *)"
+        fi
+    fi
+
+    # Rust
+    if [[ -f "Cargo.toml" ]]; then
+        detected_tools+=",Bash(cargo *),Bash(rustc *)"
+    fi
+
+    # Go
+    if [[ -f "go.mod" ]]; then
+        detected_tools+=",Bash(go *)"
+    fi
+
+    # Java / Kotlin
+    if [[ -f "pom.xml" ]]; then
+        detected_tools+=",Bash(mvn *),Bash(java *)"
+    fi
+    if [[ -f "build.gradle" ]] || [[ -f "build.gradle.kts" ]]; then
+        detected_tools+=",Bash(gradle *),Bash(./gradlew *),Bash(java *)"
+    fi
+
+    # Ruby
+    if [[ -f "Gemfile" ]]; then
+        detected_tools+=",Bash(ruby *),Bash(bundle *),Bash(rake *),Bash(rspec *)"
+    fi
+
+    # Shell / Bash testing
+    detected_tools+=",Bash(bats *)"
+
+    # Docker
+    if [[ -f "Dockerfile" ]] || [[ -f "docker-compose.yml" ]] || [[ -f "docker-compose.yaml" ]]; then
+        detected_tools+=",Bash(docker *),Bash(docker-compose *)"
+    fi
+
+    # Make
+    if [[ -f "Makefile" ]]; then
+        detected_tools+=",Bash(make *)"
+    fi
+
+    echo "${base_tools}${detected_tools}"
+}
+
+# Apply auto-detection if no explicit tools were set
+if [[ "$CLAUDE_ALLOWED_TOOLS" == "__AUTO_DETECT__" ]]; then
+    CLAUDE_ALLOWED_TOOLS=$(detect_project_tools)
+fi
+
+# =============================================================================
 # SUPERPOWERS METHODOLOGY LAYER
 # =============================================================================
 
@@ -325,7 +411,8 @@ wait_for_reset() {
     current_minute=$(date +%M)
     local current_second
     current_second=$(date +%S)
-    local wait_time=$(((60 - current_minute - 1) * 60 + (60 - current_second)))
+    # Use 10# prefix to force decimal interpretation (prevents octal issues with 08, 09)
+    local wait_time=$(((60 - 10#$current_minute - 1) * 60 + (60 - 10#$current_second)))
 
     while [[ $wait_time -gt 0 ]]; do
         local minutes=$(((wait_time % 3600) / 60))
@@ -741,7 +828,7 @@ execute_super_ralph() {
             local last_line=""
             if [[ -f "$output_file" && -s "$output_file" ]]; then
                 last_line=$(tail -1 "$output_file" 2>/dev/null | head -c 80)
-                cp "$output_file" "$LIVE_LOG_FILE" 2>/dev/null
+                tail -c 50000 "$output_file" > "$LIVE_LOG_FILE" 2>/dev/null
             fi
 
             cat > "$PROGRESS_FILE" << EOF

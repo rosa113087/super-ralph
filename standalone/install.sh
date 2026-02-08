@@ -85,8 +85,13 @@ install_super_ralph() {
 
     # Copy templates
     cp "$SCRIPT_DIR/super-ralph-prompt.md" "$SUPER_RALPH_HOME/templates/PROMPT.md"
-    cp "$SCRIPT_DIR/SKILL.md" "$SUPER_RALPH_HOME/templates/"
-    cp "$SCRIPT_DIR/ralph-skill-hooks.md" "$SUPER_RALPH_HOME/templates/"
+
+    # Copy docs (relative to repo root, not script dir)
+    local repo_dir
+    repo_dir="$(cd "$SCRIPT_DIR/.." && pwd)"
+    if [[ -f "$repo_dir/docs/ralph-skill-hooks.md" ]]; then
+        cp "$repo_dir/docs/ralph-skill-hooks.md" "$SUPER_RALPH_HOME/templates/"
+    fi
 
     # Create the super-ralph command
     cat > "$INSTALL_DIR/super-ralph" << 'CMDEOF'
