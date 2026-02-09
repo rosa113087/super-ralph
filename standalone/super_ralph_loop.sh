@@ -122,6 +122,7 @@ MAX_LOOP_CONTEXT_LENGTH="${MAX_LOOP_CONTEXT_LENGTH:-800}"
 PROGRESS_CHECK_INTERVAL="${PROGRESS_CHECK_INTERVAL:-10}"
 POST_EXECUTION_PAUSE="${POST_EXECUTION_PAUSE:-5}"
 RETRY_BACKOFF_SECONDS="${RETRY_BACKOFF_SECONDS:-30}"
+RATE_LIMIT_RETRY_SECONDS="${RATE_LIMIT_RETRY_SECONDS:-3600}"
 
 VALID_TOOL_PATTERNS=(
     "Write" "Read" "Edit" "MultiEdit" "Glob" "Grep"
@@ -1041,8 +1042,8 @@ main() {
                 update_status "$loop_count" "$(cat "$CALL_COUNT_FILE" 2>/dev/null || echo "0")" "api_limit_exit" "stopped" "api_5hour_limit"
                 break
             else
-                log_status "INFO" "User chose to wait. Waiting 60 minutes before retrying..."
-                local wait_seconds=3600
+                log_status "INFO" "User chose to wait. Waiting $((RATE_LIMIT_RETRY_SECONDS / 60)) minutes before retrying..."
+                local wait_seconds=$RATE_LIMIT_RETRY_SECONDS
                 while [[ $wait_seconds -gt 0 ]]; do
                     local minutes=$((wait_seconds / 60))
                     local seconds=$((wait_seconds % 60))

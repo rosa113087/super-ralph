@@ -16,12 +16,21 @@ All notable changes to Super-Ralph are documented in this file.
   gate_utils.sh exists before sourcing, with clear error messages
 - **46 new tests**: Session manager (16), TMUX utils (3), main loop (27) covering
   validate_allowed_tools, load_ralphrc, should_exit_gracefully, validate_ralphrc
+- **23 more tests**: Rate limiting (12), project setup (11) for init_call_tracking,
+  can_make_call, increment_call_counter, update_status, and scaffolding validation
+- **5 SKILL.md consistency tests**: Validates frontmatter fields, "Use when"
+  descriptions, Related Skills sections, and sr- prefix references
 - **Configurable context length**: `MAX_LOOP_CONTEXT_LENGTH` replaces hardcoded 800
+- **Configurable timing constants**: `PROGRESS_CHECK_INTERVAL`, `POST_EXECUTION_PAUSE`,
+  `RETRY_BACKOFF_SECONDS`, `RATE_LIMIT_RETRY_SECONDS` replace hardcoded values
 
 ### Improved
 - **Main loop reduced**: super_ralph_loop.sh down from 1411 to 1191 lines
 - **Stop-hook systemMessage**: Condensed from 25 to 8 lines
 - **Install.sh**: Copies all library files during install
+- **SKILL.md consistency**: All 14 skills now have standardized `## Related Skills`
+  sections and consistent YAML frontmatter (unquoted, "Use when" prefix)
+- **Lint flag sync**: Makefile shellcheck flags match CI workflow
 
 ### Removed
 - **Dead code**: Removed unused `SUPER_RALPH_ENABLED` from installer template

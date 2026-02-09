@@ -1,6 +1,6 @@
 ---
 name: sr-verification-before-completion
-description: Use during Ralph loops or when the user explicitly requests verification discipline - ensures tests are run and output is read before claiming completion
+description: Use when running Ralph loops or when the user explicitly requests verification discipline - ensures tests are run and output is read before claiming completion
 ---
 
 # Verification Before Completion

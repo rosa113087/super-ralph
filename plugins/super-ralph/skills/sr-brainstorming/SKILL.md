@@ -1,6 +1,6 @@
 ---
 name: sr-brainstorming
-description: "Use when the user explicitly requests brainstorming, design exploration, or when starting a greenfield project that requires architectural decisions - not for routine feature additions or directed tasks"
+description: Use when the user explicitly requests brainstorming, design exploration, or when starting a greenfield project that requires architectural decisions - not for routine feature additions or directed tasks
 ---
 
 # Brainstorming Ideas Into Designs

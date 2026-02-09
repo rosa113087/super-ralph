@@ -150,6 +150,83 @@ RCEOF
     [ -d "$TEST_DIR/projects/my-cool-app/.ralph" ]
 }
 
+# ============================================================================
+# SKILL.md consistency validation
+# ============================================================================
+
+@test "skill.md: all skills have YAML frontmatter with name field" {
+    local skills_dir
+    skills_dir="$(cd "$BATS_TEST_DIRNAME/.." && pwd)/plugins/super-ralph/skills"
+    local missing=()
+    for skill_file in "$skills_dir"/*/SKILL.md; do
+        if ! head -5 "$skill_file" | grep -q "^name:"; then
+            missing+=("$(basename "$(dirname "$skill_file")")")
+        fi
+    done
+    [ ${#missing[@]} -eq 0 ] || { echo "Missing name field: ${missing[*]}"; false; }
+}
+
+@test "skill.md: all skills have YAML frontmatter with description field" {
+    local skills_dir
+    skills_dir="$(cd "$BATS_TEST_DIRNAME/.." && pwd)/plugins/super-ralph/skills"
+    local missing=()
+    for skill_file in "$skills_dir"/*/SKILL.md; do
+        if ! head -5 "$skill_file" | grep -q "^description:"; then
+            missing+=("$(basename "$(dirname "$skill_file")")")
+        fi
+    done
+    [ ${#missing[@]} -eq 0 ] || { echo "Missing description field: ${missing[*]}"; false; }
+}
+
+@test "skill.md: all descriptions start with 'Use when'" {
+    local skills_dir
+    skills_dir="$(cd "$BATS_TEST_DIRNAME/.." && pwd)/plugins/super-ralph/skills"
+    local bad=()
+    for skill_file in "$skills_dir"/*/SKILL.md; do
+        local desc
+        desc=$(grep "^description:" "$skill_file" | head -1 | sed 's/^description: *//')
+        if [[ ! "$desc" =~ ^Use\ when ]]; then
+            bad+=("$(basename "$(dirname "$skill_file")"): $desc")
+        fi
+    done
+    [ ${#bad[@]} -eq 0 ] || { printf "Bad description: %s\n" "${bad[@]}"; false; }
+}
+
+@test "skill.md: all skills have Related Skills section" {
+    local skills_dir
+    skills_dir="$(cd "$BATS_TEST_DIRNAME/.." && pwd)/plugins/super-ralph/skills"
+    local missing=()
+    for skill_file in "$skills_dir"/*/SKILL.md; do
+        if ! grep -q "## Related Skills" "$skill_file"; then
+            missing+=("$(basename "$(dirname "$skill_file")")")
+        fi
+    done
+    [ ${#missing[@]} -eq 0 ] || { echo "Missing Related Skills: ${missing[*]}"; false; }
+}
+
+@test "skill.md: Related Skills references use sr- prefix" {
+    local skills_dir
+    skills_dir="$(cd "$BATS_TEST_DIRNAME/.." && pwd)/plugins/super-ralph/skills"
+    local bad=()
+    for skill_file in "$skills_dir"/*/SKILL.md; do
+        # Get lines after "## Related Skills" that start with "- **"
+        local in_section=false
+        while IFS= read -r line; do
+            if [[ "$line" == "## Related Skills" ]]; then
+                in_section=true
+                continue
+            fi
+            if [[ "$in_section" == true ]] && [[ "$line" =~ ^##\  ]]; then
+                break
+            fi
+            if [[ "$in_section" == true ]] && [[ "$line" =~ ^\-\ \*\* ]] && [[ ! "$line" =~ ^\-\ \*\*sr- ]]; then
+                bad+=("$(basename "$(dirname "$skill_file")"): $line")
+            fi
+        done < "$skill_file"
+    done
+    [ ${#bad[@]} -eq 0 ] || { printf "Non sr- reference: %s\n" "${bad[@]}"; false; }
+}
+
 @test "setup: creates fallback PROMPT.md when no template" {
     rm -rf "$HOME/.super-ralph/templates"
     local project_dir="$TEST_DIR/projects/fallback-app"
