@@ -1078,7 +1078,7 @@ HELPEOF
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help) show_help; exit 0 ;;
-        --version) echo "super-ralph 1.2.0"; exit 0 ;;
+        --version) echo "super-ralph 1.2.1"; exit 0 ;;
         -c|--calls) MAX_CALLS_PER_HOUR="$2"; shift 2 ;;
         -p|--prompt) PROMPT_FILE="$2"; shift 2 ;;
         -v|--verbose) VERBOSE_PROGRESS=true; shift ;;

@@ -2,6 +2,29 @@
 
 All notable changes to Super-Ralph are documented in this file.
 
+## [1.2.1] - 2026-02-09
+
+### Added
+- **Logging library**: Extracted `log_status()` and color constants to
+  `lib/logging.sh` -- libraries auto-source it when not already available
+- **Install tests**: 16 tests covering dependencies, directory structure, file
+  permissions, command creation, PATH detection, and uninstall verification
+- **Logging tests**: 8 tests for log levels, timestamps, file output, and color
+  constants
+- **Full validate_allowed_tools coverage**: 8 additional tests for MultiEdit,
+  Glob, Grep, Task, TodoWrite, WebFetch, WebSearch, NotebookEdit, and all
+  Bash patterns
+- **Makefile targets**: `make clean` (remove artifacts), `make test-file FILE=...`
+  (run single test file)
+- **251 bats tests** total across 12 test files
+
+### Improved
+- **Self-contained libraries**: tmux_utils.sh, session_manager.sh, and
+  exit_detector.sh source logging.sh directly instead of requiring caller to
+  provide `log_status()`
+- **Main loop slimmed**: Removed inline color constants and log_status definition
+  (now sourced from lib/logging.sh)
+
 ## [1.2.0] - 2026-02-09
 
 ### Added

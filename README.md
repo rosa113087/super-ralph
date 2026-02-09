@@ -399,7 +399,7 @@ Layer 1: INFRASTRUCTURE (Ralph Loop)
 
 ## Development & Testing
 
-Super-Ralph includes a comprehensive test suite with **235 bats tests** covering all gate libraries, the stop-hook controller, session management, exit detection, config validation, rate limiting, logging, project setup, SKILL.md consistency, and shared utilities.
+Super-Ralph includes a comprehensive test suite with **251 bats tests** covering all gate libraries, the stop-hook controller, session management, exit detection, config validation, rate limiting, logging, project setup, SKILL.md consistency, and shared utilities.
 
 ```bash
 # Install bats (macOS)
@@ -436,6 +436,7 @@ Test files:
 | `tests/test_main_loop.bats` | Config validation, exit detection, and rate limiting (47 tests) |
 | `tests/test_setup.bats` | Project scaffolding and SKILL.md consistency validation |
 | `tests/test_logging.bats` | Shared logging and color constants |
+| `tests/test_install.bats` | Installation, uninstallation, and PATH detection (16 tests) |
 
 Key engineering features:
 - **Configurable constants**: All timing values, thresholds, and limits are environment-variable configurable (`MAX_CALLS_PER_HOUR`, `RETRY_BACKOFF_SECONDS`, `RATE_LIMIT_RETRY_SECONDS`, `MAX_LOOP_CONTEXT_LENGTH`, etc.)
