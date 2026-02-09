@@ -35,11 +35,14 @@ Located in `standalone/`:
 
 | File | Purpose |
 |------|---------|
-| `super_ralph_loop.sh` | Main autonomous loop with rate limiting, session management |
+| `super_ralph_loop.sh` | Main autonomous loop with rate limiting, execution engine |
 | `lib/gate_utils.sh` | Shared pattern matching and JSON building utilities |
 | `lib/skill_selector.sh` | Task classification engine |
 | `lib/tdd_gate.sh` | TDD compliance enforcement |
 | `lib/verification_gate.sh` | Completion claim validator |
+| `lib/session_manager.sh` | Claude session persistence and expiry |
+| `lib/tmux_utils.sh` | Multi-pane tmux monitoring sessions |
+| `lib/exit_detector.sh` | Graceful exit detection and config validation |
 | `install.sh` | Global installation script |
 
 ### Layer 2: Claude Code Plugin
