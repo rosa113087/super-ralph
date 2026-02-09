@@ -326,3 +326,169 @@ EOF
     run validate_ralphrc
     [ "$status" -eq 1 ]
 }
+
+# ============================================================================
+# Rate limiting function tests
+# ============================================================================
+
+_define_rate_limiting() {
+    CALL_COUNT_FILE="$SUPER_RALPH_DIR/.call_count"
+    TIMESTAMP_FILE="$SUPER_RALPH_DIR/.last_reset"
+
+    init_call_tracking() {
+        local current_hour
+        current_hour=$(date +%Y%m%d%H)
+        local last_reset_hour=""
+        if [[ -f "$TIMESTAMP_FILE" ]]; then
+            last_reset_hour=$(cat "$TIMESTAMP_FILE")
+        fi
+        if [[ "$current_hour" != "$last_reset_hour" ]]; then
+            echo "0" > "$CALL_COUNT_FILE"
+            echo "$current_hour" > "$TIMESTAMP_FILE"
+        fi
+        if [[ ! -f "$EXIT_SIGNALS_FILE" ]]; then
+            echo '{"test_only_loops": [], "done_signals": [], "completion_indicators": []}' > "$EXIT_SIGNALS_FILE"
+        fi
+    }
+
+    can_make_call() {
+        local calls_made=0
+        if [[ -f "$CALL_COUNT_FILE" ]]; then
+            calls_made=$(cat "$CALL_COUNT_FILE")
+        fi
+        [[ $calls_made -lt $MAX_CALLS_PER_HOUR ]]
+    }
+
+    increment_call_counter() {
+        local calls_made=0
+        if [[ -f "$CALL_COUNT_FILE" ]]; then
+            calls_made=$(cat "$CALL_COUNT_FILE")
+        fi
+        ((calls_made++))
+        echo "$calls_made" > "$CALL_COUNT_FILE"
+        echo "$calls_made"
+    }
+
+    update_status() {
+        local loop_count=$1
+        local calls_made=$2
+        local last_action=$3
+        local status=$4
+        local exit_reason=${5:-""}
+        STATUS_FILE="$SUPER_RALPH_DIR/status.json"
+        cat > "$STATUS_FILE" << STATUSEOF
+{
+    "timestamp": "$(get_iso_timestamp)",
+    "loop_count": $loop_count,
+    "calls_made_this_hour": $calls_made,
+    "max_calls_per_hour": $MAX_CALLS_PER_HOUR,
+    "last_action": "$last_action",
+    "status": "$status",
+    "exit_reason": "$exit_reason",
+    "next_reset": "$(get_next_hour_time)",
+    "mode": "super-ralph"
+}
+STATUSEOF
+    }
+}
+
+@test "init_call_tracking: creates call count file" {
+    _define_rate_limiting
+    rm -f "$CALL_COUNT_FILE" "$TIMESTAMP_FILE"
+    init_call_tracking
+    [ -f "$CALL_COUNT_FILE" ]
+    result=$(cat "$CALL_COUNT_FILE")
+    [ "$result" = "0" ]
+}
+
+@test "init_call_tracking: creates exit signals file" {
+    _define_rate_limiting
+    rm -f "$EXIT_SIGNALS_FILE"
+    init_call_tracking
+    [ -f "$EXIT_SIGNALS_FILE" ]
+    jq -e '.test_only_loops' "$EXIT_SIGNALS_FILE" >/dev/null
+}
+
+@test "init_call_tracking: preserves count within same hour" {
+    _define_rate_limiting
+    echo "42" > "$CALL_COUNT_FILE"
+    date +%Y%m%d%H > "$TIMESTAMP_FILE"
+    init_call_tracking
+    result=$(cat "$CALL_COUNT_FILE")
+    [ "$result" = "42" ]
+}
+
+@test "can_make_call: true when under limit" {
+    _define_rate_limiting
+    echo "5" > "$CALL_COUNT_FILE"
+    MAX_CALLS_PER_HOUR=100
+    run can_make_call
+    [ "$status" -eq 0 ]
+}
+
+@test "can_make_call: false when at limit" {
+    _define_rate_limiting
+    echo "100" > "$CALL_COUNT_FILE"
+    MAX_CALLS_PER_HOUR=100
+    run can_make_call
+    [ "$status" -eq 1 ]
+}
+
+@test "can_make_call: true when no count file" {
+    _define_rate_limiting
+    rm -f "$CALL_COUNT_FILE"
+    MAX_CALLS_PER_HOUR=100
+    run can_make_call
+    [ "$status" -eq 0 ]
+}
+
+@test "increment_call_counter: increments from 0" {
+    _define_rate_limiting
+    echo "0" > "$CALL_COUNT_FILE"
+    result=$(increment_call_counter)
+    [ "$result" = "1" ]
+    file_val=$(cat "$CALL_COUNT_FILE")
+    [ "$file_val" = "1" ]
+}
+
+@test "increment_call_counter: increments from existing count" {
+    _define_rate_limiting
+    echo "10" > "$CALL_COUNT_FILE"
+    result=$(increment_call_counter)
+    [ "$result" = "11" ]
+}
+
+@test "increment_call_counter: handles missing file" {
+    _define_rate_limiting
+    rm -f "$CALL_COUNT_FILE"
+    result=$(increment_call_counter)
+    [ "$result" = "1" ]
+}
+
+@test "update_status: creates valid JSON status file" {
+    _define_rate_limiting
+    update_status 5 10 "executing" "running"
+    [ -f "$SUPER_RALPH_DIR/status.json" ]
+    local loop_count
+    loop_count=$(jq '.loop_count' "$SUPER_RALPH_DIR/status.json")
+    [ "$loop_count" = "5" ]
+    local status_val
+    status_val=$(jq -r '.status' "$SUPER_RALPH_DIR/status.json")
+    [ "$status_val" = "running" ]
+}
+
+@test "update_status: includes exit reason when provided" {
+    _define_rate_limiting
+    update_status 3 5 "graceful_exit" "completed" "project_complete"
+    local reason
+    reason=$(jq -r '.exit_reason' "$SUPER_RALPH_DIR/status.json")
+    [ "$reason" = "project_complete" ]
+}
+
+@test "update_status: mode is super-ralph" {
+    _define_rate_limiting
+    update_status 1 0 "starting" "running"
+    local mode
+    mode=$(jq -r '.mode' "$SUPER_RALPH_DIR/status.json")
+    [ "$mode" = "super-ralph" ]
+}

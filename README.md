@@ -398,7 +398,7 @@ Layer 1: INFRASTRUCTURE (Ralph Loop)
 
 ## Development & Testing
 
-Super-Ralph includes a comprehensive test suite with **176 bats tests** covering all gate libraries, the stop-hook controller, session management, exit detection, config validation, and shared utilities.
+Super-Ralph includes a comprehensive test suite with **199 bats tests** covering all gate libraries, the stop-hook controller, session management, exit detection, config validation, rate limiting, project setup, and shared utilities.
 
 ```bash
 # Install bats (macOS)
@@ -416,7 +416,8 @@ bats tests/
 # tests/test_stop_hook.bats      - Loop controller behavior
 # tests/test_session_manager.bats - Session persistence & expiry
 # tests/test_tmux_utils.bats     - TMUX monitoring utilities
-# tests/test_main_loop.bats      - Config validation & exit detection
+# tests/test_main_loop.bats      - Config validation, exit detection & rate limiting
+# tests/test_setup.bats          - Project scaffolding integration tests
 ```
 
 Key engineering features:
