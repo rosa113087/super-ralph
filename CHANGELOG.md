@@ -22,7 +22,12 @@ All notable changes to Super-Ralph are documented in this file.
   into a reusable function
 - **Makefile targets**: `make clean` (remove artifacts), `make test-file FILE=...`
   (run single test file)
-- **265 bats tests** total across 12 test files
+- **Exit detector tests**: 36 tests for should_exit_gracefully() covering all 6
+  exit conditions, priority ordering, jq parsing edge cases, and validate_ralphrc()
+  with boundary values
+- **TMUX utils tests**: Expanded from 3 to 12 tests covering command assembly
+  for all configuration options (--calls, --prompt, --verbose, --timeout, etc.)
+- **297 bats tests** total across 13 test files
 
 ### Improved
 - **Self-contained libraries**: tmux_utils.sh, session_manager.sh, and
