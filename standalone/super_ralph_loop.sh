@@ -281,6 +281,21 @@ detect_project_tools() {
         detected_tools+=",Bash(dotnet *)"
     fi
 
+    # Swift
+    if [[ -f "Package.swift" ]]; then
+        detected_tools+=",Bash(swift *),Bash(swiftc *)"
+    fi
+
+    # Zig
+    if [[ -f "build.zig" ]]; then
+        detected_tools+=",Bash(zig *)"
+    fi
+
+    # Scala
+    if [[ -f "build.sbt" ]]; then
+        detected_tools+=",Bash(sbt *),Bash(scala *)"
+    fi
+
     # Shell / Bash testing
     detected_tools+=",Bash(bats *)"
 

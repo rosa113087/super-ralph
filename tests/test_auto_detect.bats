@@ -230,3 +230,23 @@ teardown() {
     result=$(detect_project_tools)
     [[ "$result" == *"Bash(docker-compose *)"* ]]
 }
+
+@test "detect_project_tools: detects Swift project" {
+    touch Package.swift
+    result=$(detect_project_tools)
+    [[ "$result" == *"Bash(swift *)"* ]]
+    [[ "$result" == *"Bash(swiftc *)"* ]]
+}
+
+@test "detect_project_tools: detects Zig project" {
+    touch build.zig
+    result=$(detect_project_tools)
+    [[ "$result" == *"Bash(zig *)"* ]]
+}
+
+@test "detect_project_tools: detects Scala project" {
+    touch build.sbt
+    result=$(detect_project_tools)
+    [[ "$result" == *"Bash(sbt *)"* ]]
+    [[ "$result" == *"Bash(scala *)"* ]]
+}
