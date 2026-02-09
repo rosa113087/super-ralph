@@ -351,6 +351,73 @@ EOF
     [ ! -f "$TEST_DIR/.claude/super-ralph-loop.local.md" ]
 }
 
+@test "stop-hook: methodology context contains skill routing table" {
+    create_state_file 1 0
+    local transcript
+    transcript=$(create_transcript "Working")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    local sys_msg
+    sys_msg=$(echo "$output" | jq -r '.systemMessage' 2>/dev/null)
+    # Verify specific skill routing entries
+    [[ "$sys_msg" == *"sr-brainstorming"* ]]
+    [[ "$sys_msg" == *"sr-test-driven-development"* ]]
+    [[ "$sys_msg" == *"sr-verification-before-completion"* ]]
+    [[ "$sys_msg" == *"sr-systematic-debugging"* ]]
+    [[ "$sys_msg" == *"SKILL ROUTING"* ]]
+}
+
+@test "stop-hook: methodology context contains enforcement rules" {
+    create_state_file 1 0
+    local transcript
+    transcript=$(create_transcript "Working")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    local sys_msg
+    sys_msg=$(echo "$output" | jq -r '.systemMessage' 2>/dev/null)
+    [[ "$sys_msg" == *"Evidence before assertions"* ]]
+    [[ "$sys_msg" == *"One fix at a time"* ]]
+}
+
+@test "stop-hook: system message includes promise instructions when set" {
+    create_state_file 1 0 "All tests pass"
+    local transcript
+    transcript=$(create_transcript "Working on it")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    local sys_msg
+    sys_msg=$(echo "$output" | jq -r '.systemMessage' 2>/dev/null)
+    [[ "$sys_msg" == *"<promise>All tests pass</promise>"* ]]
+    [[ "$sys_msg" == *"ONLY when statement is TRUE"* ]]
+}
+
+@test "stop-hook: system message shows infinite when no promise" {
+    create_state_file 1 0 "null"
+    local transcript
+    transcript=$(create_transcript "Working")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    local sys_msg
+    sys_msg=$(echo "$output" | jq -r '.systemMessage' 2>/dev/null)
+    [[ "$sys_msg" == *"runs infinitely"* ]]
+}
+
 @test "stop-hook: promise with quotes in completion_promise" {
     create_state_file 1 0 '"All done"'
     local transcript
@@ -363,4 +430,57 @@ EOF
 
     # Promise should match (quotes are stripped by sed in frontmatter parsing)
     [ ! -f "$TEST_DIR/.claude/super-ralph-loop.local.md" ]
+}
+
+@test "stop-hook: multiline promise matched with perl" {
+    if ! command -v perl &>/dev/null; then
+        skip "perl not available"
+    fi
+    create_state_file 1 0 "All tests pass"
+    local transcript_file="$TEST_DIR/transcript.jsonl"
+
+    # Create transcript with multiline content containing promise across lines
+    echo '{"role":"user","message":{"content":[{"type":"text","text":"Do the work"}]}}' > "$transcript_file"
+    # Use jq to properly escape the multiline text as JSON
+    local multiline_text
+    multiline_text=$(printf 'I verified the work.\n<promise>All tests pass</promise>\nDone.')
+    jq -n --arg text "$multiline_text" '{"role":"assistant","message":{"content":[{"type":"text","text":$text}]}}' >> "$transcript_file"
+
+    local hook_input
+    hook_input=$(create_hook_input "$transcript_file")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    # Promise should match
+    [ ! -f "$TEST_DIR/.claude/super-ralph-loop.local.md" ]
+}
+
+@test "stop-hook: handles prompt with --- delimiters in content" {
+    # Test that prompts containing --- don't break the awk parser
+    cat > "$TEST_DIR/.claude/super-ralph-loop.local.md" << 'EOF'
+---
+iteration: 1
+max_iterations: 0
+completion_promise: null
+---
+Build the feature
+---
+This line has dashes
+---
+Continue working
+EOF
+    local transcript
+    transcript=$(create_transcript "Working on it")
+    local hook_input
+    hook_input=$(create_hook_input "$transcript")
+
+    run bash -c "echo '$hook_input' | bash '$HOOK_SCRIPT'"
+    [ "$status" -eq 0 ]
+
+    local reason
+    reason=$(echo "$output" | jq -r '.reason' 2>/dev/null)
+    # Prompt should include content after closing frontmatter ---
+    [[ "$reason" == *"Build the feature"* ]]
+    [[ "$reason" == *"Continue working"* ]]
 }

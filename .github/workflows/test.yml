@@ -35,24 +35,11 @@ jobs:
           jq --version
 
       - name: Run tests
-        run: bats tests/
+        run: make test
 
       - name: ShellCheck
         if: runner.os == 'Linux'
-        run: >
-          shellcheck -x
-          --exclude=SC1091
-          standalone/lib/*.sh
-          standalone/super_ralph_loop.sh
-          standalone/install.sh
-          plugins/super-ralph/hooks/stop-hook.sh
+        run: make lint
 
       - name: Version consistency check
-        run: |
-          V1=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
-          V2=$(jq -r '.version' plugins/super-ralph/.claude-plugin/plugin.json)
-          if [ "$V1" != "$V2" ]; then
-            echo "::error::Version mismatch: marketplace.json=$V1 plugin.json=$V2"
-            exit 1
-          fi
-          echo "Versions consistent: $V1"
+        run: make version-check
