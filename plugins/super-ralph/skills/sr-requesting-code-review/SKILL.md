@@ -74,4 +74,11 @@ Use template at `code-reviewer.md`
 - Show code/tests that prove it works
 - Request clarification
 
+## Related Skills
+
+- **sr-receiving-code-review**: Handle feedback from review
+- **sr-verification-before-completion**: Verify work before dispatching for review
+- **sr-subagent-driven-development**: Review after each task in subagent workflow
+- **sr-finishing-a-development-branch**: Complete development after review passes
+
 See template at: sr-requesting-code-review/code-reviewer.md

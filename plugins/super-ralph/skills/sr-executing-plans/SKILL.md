@@ -86,9 +86,10 @@ Stop and reassess if you catch yourself:
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent
 
-## Integration
+## Related Skills
 
-**Required workflow skills:**
-- **sr-using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **sr-writing-plans** - Creates the plan this skill executes
-- **sr-finishing-a-development-branch** - Complete development after all tasks
+- **sr-writing-plans**: Creates the plan this skill executes
+- **sr-using-git-worktrees**: Set up isolated workspace before starting (required)
+- **sr-finishing-a-development-branch**: Complete development after all tasks
+- **sr-verification-before-completion**: Verify work before claiming batch complete
+- **sr-test-driven-development**: TDD methodology for implementing each task

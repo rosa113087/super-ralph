@@ -229,3 +229,10 @@ Otherwise -> not TDD
 ```
 
 No exceptions without your human partner's permission.
+
+## Related Skills
+
+- **sr-systematic-debugging**: Use TDD to create failing test for bug reproduction
+- **sr-verification-before-completion**: Verify all tests pass before claiming done
+- **sr-writing-skills**: Skills follow the same RED-GREEN-REFACTOR cycle
+- **sr-requesting-code-review**: Review implementation after TDD cycle complete

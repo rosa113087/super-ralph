@@ -130,11 +130,10 @@ git worktree remove <worktree-path>
 - Get typed confirmation for Option 4
 - Clean up worktree for Options 1 & 4 only
 
-## Integration
+## Related Skills
 
-**Called by:**
-- **sr-subagent-driven-development** - After all tasks complete
-- **sr-executing-plans** - After all batches complete
-
-**Pairs with:**
-- **sr-using-git-worktrees** - Cleans up worktree created by that skill
+- **sr-subagent-driven-development**: Calls this skill after all tasks complete
+- **sr-executing-plans**: Calls this skill after all batches complete
+- **sr-using-git-worktrees**: Cleans up worktree created by that skill
+- **sr-verification-before-completion**: Verify tests before presenting options
+- **sr-requesting-code-review**: Final review before merge or PR

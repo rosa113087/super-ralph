@@ -111,6 +111,14 @@ Stop and reassess if you catch yourself:
 - Treating skills as optional when they are marked REQUIRED in a workflow
 - Overriding user instructions with skill ceremony
 
+## Related Skills
+
+- **sr-brainstorming**: Design exploration before implementation
+- **sr-writing-plans**: Create implementation plans from designs
+- **sr-test-driven-development**: Core implementation methodology
+- **sr-systematic-debugging**: Root cause investigation for bugs
+- **sr-verification-before-completion**: Evidence-based completion claims
+
 ## User Instructions
 
 When the user gives direct, specific instructions (e.g., "add this function", "fix this bug", "commit this"), execute them directly. Skills complement user instructions; they don't override them or add unnecessary ceremony.

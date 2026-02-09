@@ -152,6 +152,9 @@ If you catch yourself thinking:
 - **defense-in-depth.md** - Add validation at multiple layers after finding root cause
 - **condition-based-waiting.md** - Replace arbitrary timeouts with condition polling
 
-**Related skills:**
-- **sr-test-driven-development** - For creating failing test case (Phase 4, Step 1)
-- **sr-verification-before-completion** - Verify fix worked before claiming success
+## Related Skills
+
+- **sr-test-driven-development**: Create failing test case (Phase 4, Step 1)
+- **sr-verification-before-completion**: Verify fix worked before claiming success
+- **sr-dispatching-parallel-agents**: Parallelize investigation of independent failures
+- **sr-requesting-code-review**: Review fix after implementation

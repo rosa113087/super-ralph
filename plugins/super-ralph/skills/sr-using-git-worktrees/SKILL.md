@@ -140,12 +140,9 @@ Ready to implement <feature-name>
 - Auto-detect and run project setup
 - Verify clean test baseline
 
-## Integration
+## Related Skills
 
-**Called by:**
-- **sr-brainstorming** - when design is approved and implementation follows
-- **sr-subagent-driven-development** - REQUIRED before executing any tasks
-- **sr-executing-plans** - REQUIRED before executing any tasks
-
-**Pairs with:**
-- **sr-finishing-a-development-branch** - REQUIRED for cleanup after work complete
+- **sr-brainstorming**: Set up workspace after design is approved
+- **sr-subagent-driven-development**: Required before executing any tasks
+- **sr-executing-plans**: Required before executing any tasks
+- **sr-finishing-a-development-branch**: Cleans up worktree after work complete

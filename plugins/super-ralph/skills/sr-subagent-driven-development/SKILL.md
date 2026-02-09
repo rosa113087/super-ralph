@@ -69,16 +69,11 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 - Dispatch fix subagent with specific instructions
 - Don't try to fix manually (context pollution)
 
-## Integration
+## Related Skills
 
-**Required workflow skills:**
-- **sr-using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **sr-writing-plans** - Creates the plan this skill executes
-- **sr-requesting-code-review** - Code review template for reviewer subagents
-- **sr-finishing-a-development-branch** - Complete development after all tasks
-
-**Subagents should use:**
-- **sr-test-driven-development** - Subagents follow TDD for each task
-
-**Alternative workflow:**
-- **sr-executing-plans** - Use for parallel session instead of same-session execution
+- **sr-writing-plans**: Creates the plan this skill executes
+- **sr-using-git-worktrees**: Set up isolated workspace before starting (required)
+- **sr-requesting-code-review**: Code review template for reviewer subagents
+- **sr-finishing-a-development-branch**: Complete development after all tasks
+- **sr-test-driven-development**: Subagents follow TDD for each task
+- **sr-executing-plans**: Alternative workflow for parallel session execution
